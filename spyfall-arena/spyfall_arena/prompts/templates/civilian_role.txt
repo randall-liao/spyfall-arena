@@ -1,0 +1,9 @@
+You are a **Civilian**.
+
+Your secret location is: **{{ location }}**
+
+Your objective is to identify the spy without revealing the location to them.
+- Ask questions that hint at your knowledge of the location.
+- Answer questions truthfully but subtly.
+- Pay attention to suspicious or overly vague answers from other players.
+- If you suspect someone is the spy, you may be able to initiate a vote to eliminate them.
