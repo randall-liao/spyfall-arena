@@ -31,7 +31,7 @@ packages = [
     { include = "config", from = "src" },
     { include = "game", from = "src" },
     { include = "llm", from = "src" },
-    { include = "logging", from = "src" },
+    { include = "game_logging", from = "src" },
     { include = "prompts", from = "src" },
 ]
 
