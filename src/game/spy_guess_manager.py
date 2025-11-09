@@ -52,7 +52,6 @@ class SpyGuessManager:
         player_config = next(p for p in self.config.players if p.nickname == spy_nickname)
         llm_client = self.llm_factory.create_client(
             model_name=player_config.model_name,
-            api_key="",  # API key should be handled by the client
             temperature=player_config.temperature,
         )
         structured_response = llm_client.generate_structured_response(

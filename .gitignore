@@ -142,5 +142,8 @@ dmypy.json
 # pytype static analyzer
 .pytype/
 
+# Secrets
+apikeys.yaml
+
 # Cython debug symbols
 cython_debug/

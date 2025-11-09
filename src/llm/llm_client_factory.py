@@ -1,27 +1,24 @@
+from config.api_key_manager import ApiKeyManager
 from llm.base_client import BaseLLMClient
 from llm.openrouter_client import OpenRouterClient
 
 
 class LLMClientFactory:
-    """A Singleton factory for creating LLM clients."""
+    """A factory for creating LLM clients."""
 
-    _instance = None
-
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
+    def __init__(self, api_key_manager: ApiKeyManager):
+        self.api_key_manager = api_key_manager
 
     def create_client(
         self,
         model_name: str,
-        api_key: str,
         temperature: float = 0.7,
     ) -> BaseLLMClient:
         """
         Factory method to create an LLM client.
         Currently, it only supports OpenRouter.
         """
+        api_key = self.api_key_manager.get_api_key()
         # In the future, this could be extended to support other providers.
         return OpenRouterClient(
             model_name=model_name,
