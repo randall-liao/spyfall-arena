@@ -1,6 +1,7 @@
 import uuid
 from typing import List
 
+from config.api_key_manager import ApiKeyManager
 from config.config_schema import GameConfig
 from game.game_state import (GamePhase, GameState, RoundPhase,
                                            RoundState)
@@ -18,7 +19,8 @@ class GameOrchestrator:
 
     def __init__(self, config: GameConfig):
         self.config = config
-        self.llm_factory = LLMClientFactory()
+        self.api_key_manager = ApiKeyManager()
+        self.llm_factory = LLMClientFactory(self.api_key_manager)
         self.prompt_builder = PromptBuilder(config)
         self.prompt_builder.load_templates()
         self.role_assigner = RoleAssigner(config.game.random_seed or 42)

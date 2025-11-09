@@ -72,7 +72,6 @@ class TurnManager:
         )
         asker_llm_client = self.llm_factory.create_client(
             model_name=asker_config.model_name,
-            api_key="",  # API key should be handled by the client
             temperature=asker_config.temperature,
         )
 
@@ -106,7 +105,6 @@ class TurnManager:
         )
         answerer_llm_client = self.llm_factory.create_client(
             model_name=answerer_config.model_name,
-            api_key="",  # API key should be handled by the client
             temperature=answerer_config.temperature,
         )
         structured_answer = answerer_llm_client.generate_structured_response(

@@ -1,0 +1,9 @@
+# This file is used as a fallback for storing the OpenRouter API key.
+# It is NOT recommended for production use.
+# For secure storage, use Git Credential Manager or another secrets management tool.
+#
+# To use this file:
+# 1. Rename it to `apikeys.yaml`
+# 2. Replace the placeholder with your actual API key.
+
+openrouter_api_key: "your-open-router-api-key-goes-here"

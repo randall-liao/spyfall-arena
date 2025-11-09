@@ -109,14 +109,9 @@ def test_config_validation():
 
 def test_llm_client_factory():
     """Tests the LLMClientFactory."""
-    factory = LLMClientFactory()
-    client = factory.create_client(model_name="test-model", api_key="test-key")
+    mock_api_key_manager = MagicMock()
+    mock_api_key_manager.get_api_key.return_value = "test-key"
+    factory = LLMClientFactory(mock_api_key_manager)
+    client = factory.create_client(model_name="test-model")
     assert isinstance(client, OpenRouterClient)
     assert client.model_name == "test-model"
-
-
-def test_llm_client_factory_is_singleton():
-    """Tests that the factory is a singleton."""
-    factory1 = LLMClientFactory()
-    factory2 = LLMClientFactory()
-    assert factory1 is factory2
