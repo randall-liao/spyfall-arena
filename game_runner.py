@@ -3,7 +3,7 @@ from pathlib import Path
 
 from src.config.config_loader import ConfigLoader
 from src.game.orchestrator import GameOrchestrator
-from src.logging.game_logger import GameLogger
+from src.game_logging.game_logger import GameLogger
 
 
 def main():
