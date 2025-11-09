@@ -1,0 +1,59 @@
+# Example configuration for a game of Spyfall Arena
+
+game:
+  num_rounds: 3
+  max_turns_per_round: 20
+  random_seed: 42
+
+players:
+  - nickname: "Alice"
+    model_name: "openai/gpt-4"
+    temperature: 0.7
+  - nickname: "Bob"
+    model_name: "anthropic/claude-3-opus"
+    temperature: 0.7
+  - nickname: "Charlie"
+    model_name: "google/gemini-pro"
+    temperature: 0.7
+  - nickname: "David"
+    model_name: "mistralai/mistral-large"
+    temperature: 0.7
+
+locations:
+  - "Airplane"
+  - "Bank"
+  - "Beach"
+  - "Casino"
+  - "Circus Tent"
+  - "Corporate Party"
+  - "Crusader Army"
+  - "Day Spa"
+  - "Embassy"
+  - "Hospital"
+  - "Hotel"
+  - "Military Base"
+  - "Movie Studio"
+  - "Ocean Liner"
+  - "Passenger Train"
+  - "Pirate Ship"
+  - "Polar Station"
+  - "Police Station"
+  - "Restaurant"
+  - "School"
+  - "Service Station"
+  - "Space Station"
+  - "Submarine"
+  - "Supermarket"
+  - "Theater"
+  - "University"
+  - "World War II Squad"
+
+prompts:
+  system_prompt_template: "spyfall_arena/prompts/templates/system_prompt.txt"
+  civilian_role_template: "spyfall_arena/prompts/templates/civilian_role.txt"
+  spy_role_template: "spyfall_arena/prompts/templates/spy_role.txt"
+
+logging:
+  output_dir: "logs"
+  save_full_prompts: false
+  log_level: "INFO"

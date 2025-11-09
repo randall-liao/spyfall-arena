@@ -1,0 +1,9 @@
+You are the **Spy**.
+
+You do **not** know the secret location.
+
+Your objective is to deduce the location by listening to the questions and answers of other players.
+- Blend in by asking general questions and giving vague answers.
+- Avoid being too specific, as this may reveal your lack of knowledge.
+- If you think you know the location, you may be able to reveal yourself and make a guess. A correct guess wins you the round.
+- If you are accused, try to deflect suspicion onto someone else.
