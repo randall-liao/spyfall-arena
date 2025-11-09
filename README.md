@@ -21,12 +21,12 @@ It aims to evaluate how different LLMs perform in reasoning, deception, and dedu
 ### **Phase 1 – Foundational Arena (MVP)**
 > Build the core game engine and single-game simulation.
 
-- [ ] Define game rules and structure (Spy vs Civilians)
-- [ ] Role assignment logic
-- [ ] Turn-based Q/A flow
-- [ ] Voting and win condition
-- [ ] YAML config file for setup
-- [ ] Structured JSON logging
+- [x] Define game rules and structure (Spy vs Civilians)
+- [x] Role assignment logic
+- [x] Turn-based Q/A flow
+- [x] Voting and win condition
+- [x] YAML config file for setup
+- [x] Structured JSON logging
 - [ ] Basic evaluation metrics (win rate, suspicion rate)
 
 ---
