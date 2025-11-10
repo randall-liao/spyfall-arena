@@ -1,0 +1,32 @@
+# Test configuration for Spyfall Arena E2E tests
+
+game:
+  num_rounds: 1
+  max_turns_per_round: 5
+  random_seed: 42
+
+players:
+  - nickname: "Alice"
+    model_name: "mock/model-1"
+    temperature: 0.0
+  - nickname: "Bob"
+    model_name: "mock/model-2"
+    temperature: 0.0
+  - nickname: "Charlie"
+    model_name: "mock/model-3"
+    temperature: 0.0
+
+locations:
+  - "Test Location 1"
+  - "Test Location 2"
+  - "Test Location 3"
+
+prompts:
+  system_prompt_template: "src/prompts/templates/system_prompt.txt"
+  civilian_role_template: "src/prompts/templates/civilian_role.txt"
+  spy_role_template: "src/prompts/templates/spy_role.txt"
+
+logging:
+  output_dir: "test_logs"
+  save_full_prompts: true
+  log_level: "DEBUG"
