@@ -49,9 +49,9 @@ locations:
   - "World War II Squad"
 
 prompts:
-  system_prompt_template: "spyfall_arena/prompts/templates/system_prompt.txt"
-  civilian_role_template: "spyfall_arena/prompts/templates/civilian_role.txt"
-  spy_role_template: "spyfall_arena/prompts/templates/spy_role.txt"
+  system_prompt_template: "src/prompts/templates/system_prompt.txt"
+  civilian_role_template: "src/prompts/templates/civilian_role.txt"
+  spy_role_template: "src/prompts/templates/spy_role.txt"
 
 logging:
   output_dir: "logs"
