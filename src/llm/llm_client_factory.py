@@ -1,6 +1,6 @@
 from config.api_key_manager import ApiKeyManager
 from llm.base_client import BaseLLMClient
-from llm.openrouter_client import OpenRouterClient
+from llm.openai_client import OpenAIClient
 
 
 class LLMClientFactory:
@@ -20,7 +20,7 @@ class LLMClientFactory:
         """
         api_key = self.api_key_manager.get_api_key()
         # In the future, this could be extended to support other providers.
-        return OpenRouterClient(
+        return OpenAIClient(
             model_name=model_name,
             api_key=api_key,
             temperature=temperature,

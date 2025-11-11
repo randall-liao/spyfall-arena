@@ -47,6 +47,7 @@ The project has a comprehensive suite of unit tests. The testing philosophy is a
 -   **Unit Tests Only:** The focus is on unit tests that isolate and verify the behavior of individual components. Do not write end-to-end or integration tests.
 -   **Mocking:** External services and API calls must be mocked.
 -   **Coverage:** The goal is 100% line coverage, with a minimum acceptance of 90%.
+-   **File Naming:** Test files must be named to match the corresponding source file. For example, the tests for `src/game/game_state.py` should be in `tests/game/test_game_state.py`.
 
 The test directory (`./tests`) mirrors the source directory (`./src`). To run the tests and generate a coverage report, use the following command:
 
