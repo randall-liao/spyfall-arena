@@ -55,7 +55,7 @@ class ApiKeyManager:
             warnings.warn(f"Could not access system keyring. Falling back to config file. Error: {e}")
 
         # Fallback to `apikeys.yaml`
-        config_path = Path("apikeys.yaml")
+        config_path = Path(__file__).resolve().parents[2] / "apikeys.yaml"
         if config_path.is_file():
             try:
                 with open(config_path, "r") as f:
