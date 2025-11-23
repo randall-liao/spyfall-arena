@@ -1,6 +1,7 @@
 import json
 from typing import Dict, List, Optional
 
+from loguru import logger
 from pydantic import BaseModel, ValidationError
 
 from game.game_state import Role, Turn
@@ -55,6 +56,7 @@ class TurnManager:
         Raises:
             ValueError: If the LLM provides an invalid response.
         """
+        logger.info(f"Turn execution started. Asker: {current_asker}")
         asker_role = player_roles[current_asker]
 
         # 1. Asker asks a question
@@ -90,10 +92,12 @@ class TurnManager:
 
             target_nickname = question_data.target_nickname
             question_text = question_data.question
+            logger.debug(f"Player {current_asker} asks {target_nickname}: {question_text}")
         except ValidationError as e:
             raise ValueError(f"LLM returned invalid question format: {e}") from e
 
         # 2. Target answers the question
+        logger.info(f"Target {target_nickname} answering...")
         answerer_role = player_roles[target_nickname]
         answer_prompt = self.prompt_builder.build_answer_prompt(
             conversation_history, question_text

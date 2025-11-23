@@ -3,6 +3,7 @@ from pathlib import Path
 
 from src.config.config_loader import ConfigLoader
 from src.game.orchestrator import GameOrchestrator
+from src.game_logging.console_setup import setup_console_logging
 from src.game_logging.game_logger import GameLogger
 
 
@@ -14,7 +15,16 @@ def main():
         type=Path,
         help="Path to the game configuration YAML file.",
     )
+    parser.add_argument(
+        "--log-level",
+        default="INFO",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
+        help="Set the console logging verbosity.",
+    )
     args = parser.parse_args()
+
+    # Setup console logging before anything else
+    setup_console_logging(args.log_level)
 
     try:
         config = ConfigLoader.load_config(args.config_file)

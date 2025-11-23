@@ -1,6 +1,8 @@
 import uuid
 from typing import List
 
+from loguru import logger
+
 from config.api_key_manager import ApiKeyManager
 from config.config_schema import GameConfig
 from game.game_state import (GamePhase, GameState, RoundPhase,
@@ -33,8 +35,11 @@ class GameOrchestrator:
 
     def run_game(self) -> GameState:
         """Runs a complete game of Spyfall from start to finish."""
+        game_id = f"game_{uuid.uuid4().hex[:8]}"
+        logger.info(f"Starting Game {game_id}")
+
         game_state = GameState(
-            game_id=f"game_{uuid.uuid4().hex[:8]}",
+            game_id=game_id,
             phase=GamePhase.INITIALIZING,
         )
         game_state.transition_to(GamePhase.IN_PROGRESS)
@@ -43,6 +48,7 @@ class GameOrchestrator:
         game_state.player_scores = {nickname: 0 for nickname in player_nicknames}
 
         for i in range(self.config.game.num_rounds):
+            logger.info(f"Starting Round {i+1}")
             round_state = self.run_round(
                 i + 1, player_nicknames, list(self.config.locations)
             )
@@ -53,6 +59,7 @@ class GameOrchestrator:
                 game_state.player_scores[nickname] += score
 
         game_state.transition_to(GamePhase.COMPLETED)
+        logger.info("Game Completed")
         return game_state
 
     def run_round(
@@ -119,8 +126,7 @@ class GameOrchestrator:
                 previous_asker = current_asker
                 current_asker = self.turn_manager.get_next_asker(turn.answerer_nickname)
             except (ValueError, ConnectionError) as e:
-                # In a real application, you would log this error
-                print(f"Error during turn {turn_num + 1}: {e}")
+                logger.error(f"Error during turn {turn_num + 1}: {e}")
                 # For simplicity, we'll just end the round on any error.
                 round_state.ending_condition = "error"
                 break
