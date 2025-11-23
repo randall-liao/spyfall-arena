@@ -1,7 +1,7 @@
 import json
 import sys
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -11,10 +11,13 @@ sys.path.insert(0, str(project_root))
 
 import game_runner
 
+
 @pytest.fixture
 def mock_openai():
-    with patch("llm.openai_client.OpenAI") as mock_class, \
-         patch("config.api_key_manager.keyring.get_password", return_value="fake_key"):
+    with (
+        patch("llm.openai_client.OpenAI") as mock_class,
+        patch("config.api_key_manager.keyring.get_password", return_value="fake_key"),
+    ):
 
         mock_instance = MagicMock()
 
@@ -41,6 +44,7 @@ def mock_openai():
         mock_class.return_value = mock_instance
         yield mock_class
 
+
 def test_console_logging_debug(mock_openai, capsys):
     """Verifies that DEBUG logs are emitted when --log-level DEBUG is set."""
     test_args = ["game_runner.py", "config.yaml", "--log-level", "DEBUG"]
@@ -58,10 +62,11 @@ def test_console_logging_debug(mock_openai, capsys):
     assert "DEBUG" in stderr
     # Verify specific debug messages from components
     assert "Generating structured response" in stderr  # From BaseLLMClient
-    assert "Raw LLM structured response" in stderr # DEBUG from BaseLLMClient
+    assert "Raw LLM structured response" in stderr  # DEBUG from BaseLLMClient
 
     # Verify INFO logs
     assert "Starting Game" in stderr
+
 
 def test_console_logging_error_suppression(mock_openai, capsys):
     """Verifies that INFO logs are suppressed when --log-level ERROR is set."""

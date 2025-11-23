@@ -1,5 +1,6 @@
 from config.api_key_manager import ApiKeyManager
 from llm.base_client import BaseLLMClient
+from llm.gemini_client import GeminiClient
 from llm.openai_client import OpenAIClient
 
 
@@ -16,12 +17,19 @@ class LLMClientFactory:
     ) -> BaseLLMClient:
         """
         Factory method to create an LLM client.
-        Currently, it only supports OpenRouter.
+        Supports OpenRouter and Google Gemini.
         """
-        api_key = self.api_key_manager.get_api_key()
-        # In the future, this could be extended to support other providers.
-        return OpenAIClient(
-            model_name=model_name,
-            api_key=api_key,
-            temperature=temperature,
-        )
+        if model_name.lower().startswith("gemini"):
+            api_key = self.api_key_manager.get_google_api_key()
+            return GeminiClient(
+                model_name=model_name,
+                api_key=api_key,
+                temperature=temperature,
+            )
+        else:
+            api_key = self.api_key_manager.get_api_key()
+            return OpenAIClient(
+                model_name=model_name,
+                api_key=api_key,
+                temperature=temperature,
+            )

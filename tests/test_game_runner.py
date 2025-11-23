@@ -14,6 +14,7 @@ def test_main_success(
 ):
     """Tests the successful execution of the main function."""
     mock_parse_args.return_value.config_file = "config.yaml"
+    mock_parse_args.return_value.log_level = "INFO"
 
     game_runner.main()
 
@@ -32,6 +33,7 @@ def test_main_success(
 def test_main_file_not_found(mock_parse_args, mock_load_config):
     """Tests that a FileNotFoundError is handled correctly."""
     mock_parse_args.return_value.config_file = "non_existent.yaml"
+    mock_parse_args.return_value.log_level = "INFO"
     game_runner.main()
     # We just need to ensure the program doesn't crash. The error message is printed to stdout.
 
@@ -41,5 +43,6 @@ def test_main_file_not_found(mock_parse_args, mock_load_config):
 def test_main_value_error(mock_parse_args, mock_load_config):
     """Tests that a ValueError is handled correctly."""
     mock_parse_args.return_value.config_file = "invalid.yaml"
+    mock_parse_args.return_value.log_level = "INFO"
     game_runner.main()
     # We just need to ensure the program doesn't crash. The error message is printed to stdout.

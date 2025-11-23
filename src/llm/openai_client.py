@@ -1,5 +1,5 @@
 import json
-from typing import Optional, Any, Dict, cast
+from typing import Any, Dict, Optional, cast
 
 from openai import OpenAI
 

@@ -1,8 +1,8 @@
 import json
+import logging
 import sys
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-import logging
+from unittest.mock import MagicMock, patch
 
 # Set up logging to capture output from the game runner
 logging.basicConfig(level=logging.INFO)
@@ -14,7 +14,7 @@ sys.path.insert(0, str(project_root))
 import game_runner
 
 
-@patch("src.llm.openai_client.OpenAI")
+@patch("llm.openai_client.OpenAI")
 def test_game_runner_integration(mock_openai_class, capsys):
     """
     Integration test for the game runner.
@@ -44,9 +44,7 @@ def test_game_runner_integration(mock_openai_class, capsys):
     mock_api_responses = []
     for r in responses:
         mock_completion = MagicMock()
-        mock_completion.dict.return_value = {
-            "choices": [{"message": {"content": r}}]
-        }
+        mock_completion.dict.return_value = {"choices": [{"message": {"content": r}}]}
         mock_api_responses.append(mock_completion)
 
     # Configure the mock OpenAI client instance
@@ -57,8 +55,10 @@ def test_game_runner_integration(mock_openai_class, capsys):
     # Mock sys.argv to pass the config file path to the main function
     test_args = ["game_runner.py", "config.yaml"]
     with patch.object(sys, "argv", test_args):
-        # Call the main function
-        game_runner.main()
+        # Also mock ApiKeyManager to return a fake key, avoiding the 401
+        with patch("config.api_key_manager.ApiKeyManager.get_api_key", return_value="fake-key"):
+             # Call the main function
+            game_runner.main()
 
     # Verify that the game completed successfully
     captured = capsys.readouterr()

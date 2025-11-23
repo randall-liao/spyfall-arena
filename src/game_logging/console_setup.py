@@ -1,5 +1,7 @@
 import sys
+
 from loguru import logger
+
 
 def setup_console_logging(log_level: str = "INFO") -> None:
     """

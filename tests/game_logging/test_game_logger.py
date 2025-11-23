@@ -17,12 +17,8 @@ def mock_config() -> GameConfig:
     return GameConfig(
         game_rules=MagicMock(),
         players=[
-            PlayerConfig(
-                nickname="Alice", model_name="claude-3-opus-20240229"
-            ),
-            PlayerConfig(
-                nickname="Bob", model_name="claude-3-sonnet-20240229"
-            ),
+            PlayerConfig(nickname="Alice", model_name="claude-3-opus-20240229"),
+            PlayerConfig(nickname="Bob", model_name="claude-3-sonnet-20240229"),
         ],
         locations=["Beach", "Library", "Hospital"],
         logging=LoggingConfig(output_dir="/tmp/spyfall_logs", log_level="INFO"),
@@ -46,7 +42,9 @@ def mock_game_state() -> GameState:
             "Bob": MagicMock(role="Spy", description="..."),
         },
     )
-    round_state.conversation_history.append(MagicMock(nickname="Alice", utterance="..."))
+    round_state.conversation_history.append(
+        MagicMock(nickname="Alice", utterance="...")
+    )
     round_state.votes.append(MagicMock(voter="Alice", voted_for="Bob", outcome="..."))
     round_state.spy_guess = MagicMock(guesser="Bob", location="...s", is_correct=False)
     round_state.ending_condition = "Voted out"

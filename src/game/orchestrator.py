@@ -5,8 +5,7 @@ from loguru import logger
 
 from config.api_key_manager import ApiKeyManager
 from config.config_schema import GameConfig
-from game.game_state import (GamePhase, GameState, RoundPhase,
-                                           RoundState)
+from game.game_state import GamePhase, GameState, RoundPhase, RoundState
 from game.role_assigner import RoleAssigner
 from game.scoring_engine import ScoringEngine
 from game.spy_guess_manager import SpyGuessManager
@@ -27,7 +26,9 @@ class GameOrchestrator:
         self.prompt_builder.load_templates()
         self.role_assigner = RoleAssigner(config.game.random_seed or 42)
         self.turn_manager = TurnManager(self.llm_factory, self.prompt_builder, config)
-        self.voting_manager = VotingManager(self.llm_factory, self.prompt_builder, config)
+        self.voting_manager = VotingManager(
+            self.llm_factory, self.prompt_builder, config
+        )
         self.spy_guess_manager = SpyGuessManager(
             self.llm_factory, self.prompt_builder, config
         )

@@ -10,12 +10,11 @@ open_router_client: BaseLLMClient = client_factory.create_client(
 )
 
 
-
 if __name__ == "__main__":
-    '''
+    """
     This test will actually call the OpenRouter API to test the API key.
     So don't run it with pytest or in CI/CD
-    '''
+    """
 
-    response:str = open_router_client.generate_response("Hello", "Hello")
+    response: str = open_router_client.generate_response("Hello", "Hello")
     print(response)

@@ -147,3 +147,6 @@ apikeys.yaml
 
 # Cython debug symbols
 cython_debug/
+logs/
+temp/
+mypy_output.txt

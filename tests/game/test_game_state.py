@@ -1,7 +1,6 @@
 import pytest
 
-from game.game_state import (GamePhase, GameState, Role,
-                                           RoundPhase, RoundState)
+from game.game_state import GamePhase, GameState, Role, RoundPhase, RoundState
 
 
 @pytest.fixture
