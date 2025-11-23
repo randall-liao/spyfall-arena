@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from loguru import logger
 from pydantic import BaseModel, ValidationError
 
 from game.game_state import Role, SpyGuess
@@ -63,6 +64,7 @@ class SpyGuessManager:
         try:
             response = SpyGuessResponse(**structured_response)
             if response.make_guess and response.location_guess:
+                logger.info(f"Spy {spy_nickname} guesses location: {response.location_guess}")
                 is_correct = response.location_guess == actual_location
                 return SpyGuess(
                     spy_nickname=spy_nickname,

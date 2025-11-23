@@ -1,5 +1,6 @@
 from typing import Dict, List, Optional, Set
 
+from loguru import logger
 from pydantic import BaseModel, ValidationError
 
 from game.game_state import Role, VoteAttempt
@@ -72,6 +73,7 @@ class VotingManager:
         try:
             response = VoteInitiationResponse(**structured_response)
             if response.initiate_vote and response.suspect_nickname:
+                logger.info(f"Vote initiated by {current_player} against {response.suspect_nickname}")
                 return response.suspect_nickname
             return None
         except ValidationError as e:
@@ -120,6 +122,7 @@ class VotingManager:
                 votes[nickname] = False
 
         passed = all(votes.values())
+        logger.info(f"Vote result: {'Passed' if passed else 'Failed'} (Votes: {votes})")
         return VoteAttempt(
             initiator=initiator, suspect=suspect, votes=votes, passed=passed
         )

@@ -83,6 +83,14 @@ To run a game, you need to provide a configuration file.
 python game_runner.py config.yaml
 ```
 
+You can control the console logging verbosity with the `--log-level` flag (default: INFO).
+Available levels: `DEBUG`, `INFO`, `WARNING`, `ERROR`.
+
+```bash
+# Run with detailed debug logs
+python game_runner.py config.yaml --log-level DEBUG
+```
+
 You can customize the game by editing `config.yaml` or creating your own configuration files.
 
 ### 5. Running Tests

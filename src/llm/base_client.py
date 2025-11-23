@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
+from loguru import logger
+
 
 class BaseLLMClient(ABC):
     """Abstract base class for LLM clients, using the Template Method pattern."""
@@ -42,12 +44,15 @@ class BaseLLMClient(ABC):
             {"role": "user", "content": user_prompt},
         ]
 
+        logger.debug(f"Generating text response for model {self.model_name}")
+        logger.debug(f"Messages: {messages}")
+
         try:
             response = self._make_api_call(messages, temp)
+            logger.debug(f"Raw LLM response: {response}")
             return self._extract_text(response)
         except Exception as e:
-            # In a real app, you'd use a logger here
-            print(f"LLM API call failed: {e}")
+            logger.error(f"LLM API call failed: {e}")
             raise
 
     def generate_structured_response(
@@ -64,10 +69,14 @@ class BaseLLMClient(ABC):
             {"role": "user", "content": user_prompt},
         ]
 
+        logger.debug(f"Generating structured response for model {self.model_name}")
+        logger.debug(f"Messages: {messages}")
+        logger.debug(f"Schema: {response_schema}")
+
         try:
             response = self._make_api_call(messages, temp, response_schema)
+            logger.debug(f"Raw LLM structured response: {response}")
             return self._extract_structured_data(response)
         except Exception as e:
-            # In a real app, you'd use a logger here
-            print(f"LLM structured API call failed: {e}")
+            logger.error(f"LLM structured API call failed: {e}")
             raise
