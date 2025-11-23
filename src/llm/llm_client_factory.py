@@ -1,3 +1,5 @@
+from loguru import logger
+
 from config.api_key_manager import ApiKeyManager
 from llm.base_client import BaseLLMClient
 from llm.openai_client import OpenAIClient
@@ -18,6 +20,9 @@ class LLMClientFactory:
         Factory method to create an LLM client.
         Currently, it only supports OpenRouter.
         """
+        logger.debug(
+            f"Creating LLM client for model: {model_name} (temp={temperature})"
+        )
         api_key = self.api_key_manager.get_api_key()
         # In the future, this could be extended to support other providers.
         return OpenAIClient(

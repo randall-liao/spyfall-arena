@@ -1,6 +1,8 @@
 from pathlib import Path
 from typing import List
 
+from loguru import logger
+
 from config.config_schema import GameConfig
 from game.game_state import Role, Turn
 
@@ -16,6 +18,7 @@ class PromptBuilder:
 
     def load_templates(self):
         """Loads the prompt templates from the files specified in the config."""
+        logger.info("Loading prompt templates")
         try:
             self.system_prompt = self._read_template(
                 Path(self.config.prompts.system_prompt_template)

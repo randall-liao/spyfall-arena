@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import yaml
+from loguru import logger
 from pydantic import ValidationError
 
 from config.config_schema import GameConfig
@@ -24,6 +25,7 @@ class ConfigLoader:
             FileNotFoundError: If the config file does not exist.
             ValueError: If the config file is malformed (YAML error or validation error).
         """
+        logger.info(f"Loading configuration from {config_path}")
         if not config_path.is_file():
             raise FileNotFoundError(f"Configuration file not found at: {config_path}")
 

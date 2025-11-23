@@ -1,8 +1,8 @@
 import json
+import logging
 import sys
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-import logging
+from unittest.mock import MagicMock, patch
 
 # Set up logging to capture output from the game runner
 logging.basicConfig(level=logging.INFO)
@@ -12,16 +12,22 @@ project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 import game_runner
+from config.api_key_manager import ApiKeyManager
 
 
-@patch("src.llm.openai_client.OpenAI")
-def test_game_runner_integration(mock_openai_class, capsys):
+@patch("config.api_key_manager.keyring.get_password", return_value="fake_key")
+@patch("llm.openai_client.OpenAI")
+def test_game_runner_integration(mock_openai_class, mock_keyring, capsys):
     """
     Integration test for the game runner.
 
     This test runs the main function from game_runner.py, mocking the LLM client,
     and checks for successful execution by verifying that a log file is created.
     """
+    ApiKeyManager._instance = None
+    ApiKeyManager._api_key = None
+    ApiKeyManager._key_loaded = False
+
     # This mock strategy is designed to end each round quickly by initiating a vote
     # and having all players vote 'yes'.
     vote_initiate_response = json.dumps(
@@ -44,9 +50,7 @@ def test_game_runner_integration(mock_openai_class, capsys):
     mock_api_responses = []
     for r in responses:
         mock_completion = MagicMock()
-        mock_completion.dict.return_value = {
-            "choices": [{"message": {"content": r}}]
-        }
+        mock_completion.dict.return_value = {"choices": [{"message": {"content": r}}]}
         mock_api_responses.append(mock_completion)
 
     # Configure the mock OpenAI client instance

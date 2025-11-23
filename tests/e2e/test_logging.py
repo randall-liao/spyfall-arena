@@ -32,8 +32,13 @@ def test_e2e_logging_from_main():
             "location_guess": "Test Location 3",
         }
 
-        with patch("sys.argv", ["game_runner.py", str(temp_config_path)]), \
-             patch("llm.llm_client_factory.LLMClientFactory.create_client", return_value=mock_llm_client):
+        with (
+            patch("sys.argv", ["game_runner.py", str(temp_config_path)]),
+            patch(
+                "llm.llm_client_factory.LLMClientFactory.create_client",
+                return_value=mock_llm_client,
+            ),
+        ):
             game_runner_main()
 
         # Verify that a log file was created

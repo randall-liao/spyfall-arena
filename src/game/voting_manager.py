@@ -18,6 +18,8 @@ class VoteDecisionResponse(BaseModel):
 
 
 from config.config_schema import GameConfig
+
+
 class VotingManager:
     """Manages the voting process in a round of Spyfall."""
 
@@ -73,7 +75,9 @@ class VotingManager:
         try:
             response = VoteInitiationResponse(**structured_response)
             if response.initiate_vote and response.suspect_nickname:
-                logger.info(f"Vote initiated by {current_player} against {response.suspect_nickname}")
+                logger.info(
+                    f"Vote initiated by {current_player} against {response.suspect_nickname}"
+                )
                 return response.suspect_nickname
             return None
         except ValidationError as e:

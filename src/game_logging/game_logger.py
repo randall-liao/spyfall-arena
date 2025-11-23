@@ -15,9 +15,8 @@ class GameLogger:
         self.config = config
         self.log_dir = Path(config.logging.output_dir)
         self.log_dir.mkdir(parents=True, exist_ok=True)
-        self._setup_loguru()
 
-    def _setup_loguru(self):
+    def setup_file_logging(self):
         """Configures Loguru for game execution logging."""
         log_file = self.log_dir / "game_execution.log"
         logger.add(

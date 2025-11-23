@@ -1,5 +1,7 @@
 from typing import Dict
 
+from loguru import logger
+
 from game.game_state import RoundState, VoteAttempt
 
 
@@ -16,6 +18,7 @@ class ScoringEngine:
         Returns:
             A dictionary mapping player nicknames to the points they earned in the round.
         """
+        logger.debug(f"Calculating scores for Round {round_state.round_number}")
         scores: Dict[str, int] = {
             nickname: 0 for nickname in round_state.role_assignments
         }
@@ -45,4 +48,5 @@ class ScoringEngine:
             # Spy was not caught, and didn't guess the location
             scores[spy_nickname] = 2
 
+        logger.debug(f"Round scores: {scores}")
         return scores

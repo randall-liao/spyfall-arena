@@ -1,7 +1,6 @@
 import pytest
 
-from game.game_state import (Role, RoundPhase, RoundState,
-                                           SpyGuess, VoteAttempt)
+from game.game_state import Role, RoundPhase, RoundState, SpyGuess, VoteAttempt
 from game.scoring_engine import ScoringEngine
 
 

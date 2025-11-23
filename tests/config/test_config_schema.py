@@ -1,8 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from config.config_schema import (GameConfig, LoggingConfig,
-                                                PlayerConfig)
+from config.config_schema import GameConfig, LoggingConfig, PlayerConfig
 
 
 def test_valid_config():
