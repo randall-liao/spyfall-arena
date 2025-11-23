@@ -18,6 +18,7 @@ def test_setup_console_logging_calls() -> None:
         assert kwargs["level"] == "DEBUG"
         assert "format" in kwargs
 
+
 def test_setup_console_logging_default() -> None:
     """Verifies default log level is INFO (or whatever is passed, actually defaults to INFO in args usually)."""
     # The function has a default arg "INFO"

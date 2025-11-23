@@ -19,6 +19,8 @@ class AnswerResponse(BaseModel):
 
 
 from config.config_schema import GameConfig
+
+
 class TurnManager:
     """Manages the question-and-answer flow for a single turn in Spyfall."""
 
@@ -92,7 +94,9 @@ class TurnManager:
 
             target_nickname = question_data.target_nickname
             question_text = question_data.question
-            logger.debug(f"Player {current_asker} asks {target_nickname}: {question_text}")
+            logger.debug(
+                f"Player {current_asker} asks {target_nickname}: {question_text}"
+            )
         except ValidationError as e:
             raise ValueError(f"LLM returned invalid question format: {e}") from e
 

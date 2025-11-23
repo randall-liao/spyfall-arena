@@ -2,12 +2,10 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from config.config_schema import GameConfig
+from config.config_schema import GameConfig, GameRulesConfig, PlayerConfig
 from game.game_state import Role, SpyGuess, Turn, VoteAttempt
 from game.orchestrator import GameOrchestrator
 
-
-from config.config_schema import GameConfig, GameRulesConfig, PlayerConfig
 
 @pytest.fixture
 def mock_config() -> GameConfig:

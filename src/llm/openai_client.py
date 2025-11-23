@@ -1,5 +1,5 @@
 import json
-from typing import Optional, Any, Dict, cast
+from typing import Any, Dict, Optional, cast
 
 from openai import OpenAI
 
@@ -37,7 +37,7 @@ class OpenAIClient(BaseLLMClient):
             model=self.model_name,
             messages=messages,
             temperature=temperature,
-            response_format=response_format,
+            response_format=cast(Any, response_format),
         )
         return cast(Dict[str, Any], completion.dict())
 

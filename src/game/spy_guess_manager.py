@@ -14,6 +14,8 @@ class SpyGuessResponse(BaseModel):
 
 
 from config.config_schema import GameConfig
+
+
 class SpyGuessManager:
     """Manages the spy's attempt to guess the location."""
 
@@ -48,9 +50,13 @@ class SpyGuessManager:
         )
         system_prompt = self.prompt_builder.build_system_prompt()
         # The role prompt for the spy is generic and doesn't need the Role object
-        role_prompt = self.prompt_builder.build_role_prompt(Role(is_spy=True, location=None))
+        role_prompt = self.prompt_builder.build_role_prompt(
+            Role(is_spy=True, location=None)
+        )
 
-        player_config = next(p for p in self.config.players if p.nickname == spy_nickname)
+        player_config = next(
+            p for p in self.config.players if p.nickname == spy_nickname
+        )
         llm_client = self.llm_factory.create_client(
             model_name=player_config.model_name,
             temperature=player_config.temperature,
@@ -64,8 +70,13 @@ class SpyGuessManager:
         try:
             response = SpyGuessResponse(**structured_response)
             if response.make_guess and response.location_guess:
-                logger.info(f"Spy {spy_nickname} guesses location: {response.location_guess}")
+                logger.info(
+                    f"Spy {spy_nickname} guesses location: {response.location_guess}"
+                )
                 is_correct = response.location_guess == actual_location
+                logger.info(
+                    f"Spy guess result: {'Correct' if is_correct else 'Incorrect'}"
+                )
                 return SpyGuess(
                     spy_nickname=spy_nickname,
                     guessed_location=response.location_guess,

@@ -1,6 +1,8 @@
 import random
 from typing import Dict, List, Tuple
 
+from loguru import logger
+
 from game.game_state import Role
 
 
@@ -49,4 +51,7 @@ class RoleAssigner:
                     is_spy=False, location=selected_location
                 )
 
+        logger.info(
+            f"Assigned roles. Spy: {spy_nickname}, Location: {selected_location}"
+        )
         return role_assignments, selected_location
