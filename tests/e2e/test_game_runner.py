@@ -12,16 +12,22 @@ project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 import game_runner
+from config.api_key_manager import ApiKeyManager
 
 
+@patch("config.api_key_manager.keyring.get_password", return_value="fake_key")
 @patch("llm.openai_client.OpenAI")
-def test_game_runner_integration(mock_openai_class, capsys):
+def test_game_runner_integration(mock_openai_class, mock_keyring, capsys):
     """
     Integration test for the game runner.
 
     This test runs the main function from game_runner.py, mocking the LLM client,
     and checks for successful execution by verifying that a log file is created.
     """
+    ApiKeyManager._instance = None
+    ApiKeyManager._api_key = None
+    ApiKeyManager._key_loaded = False
+
     # This mock strategy is designed to end each round quickly by initiating a vote
     # and having all players vote 'yes'.
     vote_initiate_response = json.dumps(
@@ -55,10 +61,8 @@ def test_game_runner_integration(mock_openai_class, capsys):
     # Mock sys.argv to pass the config file path to the main function
     test_args = ["game_runner.py", "config.yaml"]
     with patch.object(sys, "argv", test_args):
-        # Also mock ApiKeyManager to return a fake key, avoiding the 401
-        with patch("config.api_key_manager.ApiKeyManager.get_api_key", return_value="fake-key"):
-             # Call the main function
-            game_runner.main()
+        # Call the main function
+        game_runner.main()
 
     # Verify that the game completed successfully
     captured = capsys.readouterr()

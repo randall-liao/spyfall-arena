@@ -1,3 +1,5 @@
+from loguru import logger
+
 from config.api_key_manager import ApiKeyManager
 from llm.base_client import BaseLLMClient
 from llm.gemini_client import GeminiClient
@@ -19,6 +21,9 @@ class LLMClientFactory:
         Factory method to create an LLM client.
         Supports OpenRouter and Google Gemini.
         """
+        logger.debug(
+            f"Creating LLM client for model: {model_name} (temp={temperature})"
+        )
         if model_name.lower().startswith("gemini"):
             api_key = self.api_key_manager.get_google_api_key()
             return GeminiClient(

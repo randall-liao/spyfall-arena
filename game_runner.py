@@ -1,10 +1,10 @@
 import argparse
 from pathlib import Path
 
-from src.config.config_loader import ConfigLoader
-from src.game.orchestrator import GameOrchestrator
-from src.game_logging.console_setup import setup_console_logging
-from src.game_logging.game_logger import GameLogger
+from config.config_loader import ConfigLoader
+from game.orchestrator import GameOrchestrator
+from game_logging.console_setup import setup_console_logging
+from game_logging.game_logger import GameLogger
 
 
 def main():
@@ -30,6 +30,7 @@ def main():
         config = ConfigLoader.load_config(args.config_file)
 
         logger = GameLogger(config)
+        logger.setup_file_logging()
         orchestrator = GameOrchestrator(config)
 
         game_state = orchestrator.run_game()

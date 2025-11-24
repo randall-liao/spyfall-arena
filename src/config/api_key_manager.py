@@ -1,9 +1,9 @@
-import warnings
 from pathlib import Path
 from typing import Optional
 
 import keyring
 import yaml
+from loguru import logger
 
 
 class ApiKeyManager:
@@ -74,12 +74,14 @@ class ApiKeyManager:
         """Loads the OpenRouter API key from the supported sources."""
         # Try to get the key from the system keyring first
         try:
+            logger.debug("Attempting to load API key from system keyring.")
             key = keyring.get_password("spyfall-arena", "openrouter_api_key")
             if key:
                 self._api_key = key
+                logger.info("API key loaded successfully from system keyring.")
                 return
         except Exception as e:
-            warnings.warn(
+            logger.warning(
                 f"Could not access system keyring. Falling back to config file. Error: {e}"
             )
 
@@ -87,19 +89,20 @@ class ApiKeyManager:
         config_path = Path(__file__).resolve().parents[2] / "apikeys.yaml"
         if config_path.is_file():
             try:
+                logger.debug(f"Attempting to load API key from {config_path}")
                 with open(config_path, "r") as f:
                     config_data = yaml.safe_load(f)
                     key = config_data.get("openrouter_api_key")
                     if key and key != "your-open-router-api-key-goes-here":
                         self._api_key = key
-                        warnings.warn(
+                        logger.warning(
                             "Loading API key from `apikeys.yaml`. "
                             "This is not recommended for production. "
                             "Use a secure credential manager instead."
                         )
                         return
             except (yaml.YAMLError, IOError) as e:
-                warnings.warn(f"Error reading `apikeys.yaml`: {e}")
+                logger.warning(f"Error reading `apikeys.yaml`: {e}")
 
         # If we reach here, the key was not found
         self._api_key = None
@@ -108,12 +111,14 @@ class ApiKeyManager:
         """Loads the Google API key from the supported sources."""
         # Try to get the key from the system keyring first
         try:
+            logger.debug("Attempting to load Google API key from system keyring.")
             key = keyring.get_password("spyfall-arena", "google_api_key")
             if key:
                 self._google_api_key = key
+                logger.info("Google API key loaded successfully from system keyring.")
                 return
         except Exception as e:
-            warnings.warn(
+            logger.warning(
                 f"Could not access system keyring. Falling back to config file. Error: {e}"
             )
 
@@ -121,19 +126,20 @@ class ApiKeyManager:
         config_path = Path(__file__).resolve().parents[2] / "apikeys.yaml"
         if config_path.is_file():
             try:
+                logger.debug(f"Attempting to load Google API key from {config_path}")
                 with open(config_path, "r") as f:
                     config_data = yaml.safe_load(f)
                     key = config_data.get("google_api_key")
                     if key and key != "your-google-api-key-goes-here":
                         self._google_api_key = key
-                        warnings.warn(
+                        logger.warning(
                             "Loading Google API key from `apikeys.yaml`. "
                             "This is not recommended for production. "
                             "Use a secure credential manager instead."
                         )
                         return
             except (yaml.YAMLError, IOError) as e:
-                warnings.warn(f"Error reading `apikeys.yaml`: {e}")
+                logger.warning(f"Error reading `apikeys.yaml`: {e}")
 
         # If we reach here, the key was not found
         self._google_api_key = None

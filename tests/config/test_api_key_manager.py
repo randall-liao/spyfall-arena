@@ -54,9 +54,33 @@ class TestApiKeyManager(unittest.TestCase):
         with patch("builtins.open", unittest.mock.mock_open(read_data="")):
             with patch("yaml.safe_load", return_value=mock_yaml_data):
                 with patch("pathlib.Path.is_file", return_value=True):
-                    self.assertEqual(
-                        self.manager.get_google_api_key(), "yaml-google-key"
-                    )
+                    self.assertEqual(self.manager.get_google_api_key(), "yaml-google-key")
+
+    @patch("config.api_key_manager.logger")
+    @patch("keyring.get_password", side_effect=Exception("Keyring error"))
+    @patch("pathlib.Path.is_file", return_value=True)
+    @patch(
+        "builtins.open",
+        new_callable=unittest.mock.mock_open,
+        read_data='openrouter_api_key: "config-api-key"',
+    )
+    def test_get_api_key_from_config_fallback(
+        self, mock_open, mock_is_file, mock_get_password, mock_logger
+    ):
+        """Test that the API key is retrieved from the config file when keyring fails."""
+        # Need to ensure yaml.safe_load returns the data
+        with patch("yaml.safe_load", return_value={"openrouter_api_key": "config-api-key"}):
+            manager = ApiKeyManager()
+            api_key = manager.get_api_key()
+
+            self.assertEqual(api_key, "config-api-key")
+
+            # Check for the expected warning logs
+            warnings = [call.args[0] for call in mock_logger.warning.call_args_list]
+            self.assertTrue(any("Could not access system keyring" in w for w in warnings))
+            self.assertTrue(
+                any("Loading API key from `apikeys.yaml`" in w for w in warnings)
+            )
 
     def test_get_google_api_key_not_found(self):
         """Test when Google API key is not found."""

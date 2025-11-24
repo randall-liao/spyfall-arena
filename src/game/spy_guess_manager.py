@@ -74,6 +74,9 @@ class SpyGuessManager:
                     f"Spy {spy_nickname} guesses location: {response.location_guess}"
                 )
                 is_correct = response.location_guess == actual_location
+                logger.info(
+                    f"Spy guess result: {'Correct' if is_correct else 'Incorrect'}"
+                )
                 return SpyGuess(
                     spy_nickname=spy_nickname,
                     guessed_location=response.location_guess,

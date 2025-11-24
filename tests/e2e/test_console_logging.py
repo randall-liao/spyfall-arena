@@ -10,10 +10,16 @@ project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 import game_runner
+from config.api_key_manager import ApiKeyManager
+
 
 
 @pytest.fixture
 def mock_openai():
+    ApiKeyManager._instance = None
+    ApiKeyManager._api_key = None
+    ApiKeyManager._key_loaded = False
+
     with (
         patch("llm.openai_client.OpenAI") as mock_class,
         patch("config.api_key_manager.keyring.get_password", return_value="fake_key"),

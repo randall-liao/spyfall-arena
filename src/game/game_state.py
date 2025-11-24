@@ -3,6 +3,8 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Dict, List, Optional, Set
 
+from loguru import logger
+
 
 class GamePhase(Enum):
     """Game-level states"""
@@ -87,8 +89,14 @@ class RoundState:
     def transition_to(self, new_phase: RoundPhase) -> bool:
         """Validates and executes state transition"""
         if self._is_valid_transition(self.phase, new_phase):
+            logger.info(
+                f"Round State transition: {self.phase.value} -> {new_phase.value}"
+            )
             self.phase = new_phase
             return True
+        logger.warning(
+            f"Invalid Round transition attempted: {self.phase.value} -> {new_phase.value}"
+        )
         return False
 
     def _is_valid_transition(
@@ -122,8 +130,14 @@ class GameState:
     def transition_to(self, new_phase: GamePhase) -> bool:
         """Validates and executes state transition"""
         if self._is_valid_transition(self.phase, new_phase):
+            logger.info(
+                f"Game State transition: {self.phase.value} -> {new_phase.value}"
+            )
             self.phase = new_phase
             return True
+        logger.warning(
+            f"Invalid Game transition attempted: {self.phase.value} -> {new_phase.value}"
+        )
         return False
 
     def _is_valid_transition(self, from_phase: GamePhase, to_phase: GamePhase) -> bool:

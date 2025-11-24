@@ -96,7 +96,8 @@ def test_write_final_log(
 def test_loguru_setup(mock_config: GameConfig):
     """Tests that Loguru is configured correctly."""
     with patch("loguru.logger.add") as mock_logger_add:
-        GameLogger(config=mock_config)
+        logger_instance = GameLogger(config=mock_config)
+        logger_instance.setup_file_logging()
         mock_logger_add.assert_called_once()
         args, kwargs = mock_logger_add.call_args
         assert args[0] == Path(mock_config.logging.output_dir) / "game_execution.log"
