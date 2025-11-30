@@ -13,7 +13,6 @@ import game_runner
 from config.api_key_manager import ApiKeyManager
 
 
-
 @pytest.fixture
 def mock_openai():
     ApiKeyManager._instance = None

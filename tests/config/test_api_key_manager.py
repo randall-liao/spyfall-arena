@@ -68,12 +68,27 @@ class TestApiKeyManager(unittest.TestCase):
         self, mock_open, mock_is_file, mock_get_password, mock_logger
     ):
         """Test that the API key is retrieved from the config file when keyring fails."""
-        # Need to ensure yaml.safe_load returns the data
-        with patch("yaml.safe_load", return_value={"openrouter_api_key": "config-api-key"}):
-            manager = ApiKeyManager()
-            api_key = manager.get_api_key()
+        manager = ApiKeyManager()
+        api_key = manager.get_api_key()
 
-            self.assertEqual(api_key, "config-api-key")
+        self.assertEqual(api_key, "config-api-key")
+
+        # Check for the expected warning logs
+        warnings = [call.args[0] for call in mock_logger.warning.call_args_list]
+        self.assertTrue(any("Could not access system keyring" in w for w in warnings))
+        self.assertTrue(
+            any("Loading API key from `apikeys.yaml`" in w for w in warnings)
+        )
+
+    @patch("keyring.get_password", return_value=None)
+    @patch("pathlib.Path.is_file", return_value=False)
+    def test_get_api_key_not_found(self, mock_is_file, mock_get_password):
+        """Test that a ValueError is raised when the API key is not found."""
+        manager = ApiKeyManager()
+        with self.assertRaises(ValueError) as context:
+            manager.get_api_key()
+
+        self.assertIn("OpenRouter API key not found", str(context.exception))
 
             # Check for the expected warning logs
             warnings = [call.args[0] for call in mock_logger.warning.call_args_list]
