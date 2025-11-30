@@ -151,6 +151,5 @@ cython_debug/
 logs
 .idea/
 .vscode/
-prompts/
 
 
