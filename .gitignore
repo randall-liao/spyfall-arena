@@ -149,3 +149,8 @@ apikeys.yaml
 # Cython debug symbols
 cython_debug/
 logs
+.idea/
+.vscode/
+prompts/
+
+
