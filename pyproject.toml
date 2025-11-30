@@ -14,7 +14,8 @@ dependencies = [
     "python-dotenv (>=1.2.1,<2.0.0)",
     "httpx (>=0.28.1,<0.29.0)",
     "keyring (>=25.6.0,<26.0.0)",
-    "openai (>=1.0.0,<2.0.0)"
+    "openai (>=1.0.0,<2.0.0)",
+    "google-genai (>=1.52.0,<2.0.0)"
 ]
 
 [dependency-groups]
