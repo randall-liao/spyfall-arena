@@ -19,7 +19,7 @@ def test_e2e_logging_from_main():
             config_content = f.read()
 
         temp_config_content = config_content.replace(
-            'output_dir: "test_logs"', f'output_dir: "{temp_dir}"'
+            'output_dir: "test_logs"', f'output_dir: "{Path(temp_dir).as_posix()}"'
         )
 
         temp_config_path = Path(temp_dir) / "temp_config.yaml"
@@ -32,24 +32,31 @@ def test_e2e_logging_from_main():
             "location_guess": "Test Location 3",
         }
 
-        with (
-            patch("sys.argv", ["game_runner.py", str(temp_config_path)]),
-            patch(
-                "llm.llm_client_factory.LLMClientFactory.create_client",
-                return_value=mock_llm_client,
-            ),
-        ):
-            game_runner_main()
+        try:
+            with (
+                patch("sys.argv", ["game_runner.py", str(temp_config_path)]),
+                patch(
+                    "llm.llm_client_factory.LLMClientFactory.create_client",
+                    return_value=mock_llm_client,
+                ),
+            ):
+                game_runner_main()
 
-        # Verify that a log file was created
-        log_files = list(Path(temp_dir).glob("*.json"))
-        assert len(log_files) == 1
-        log_file = log_files[0]
+            # Verify that a log file was created
+            log_files = list(Path(temp_dir).glob("*.json"))
+            assert len(log_files) == 1
+            log_file = log_files[0]
 
-        # Verify the log content
-        with open(log_file, "r") as f:
-            log_data = json.load(f)
+            # Verify the log content
+            with open(log_file, "r") as f:
+                log_data = json.load(f)
 
-        assert log_data["status"] == GamePhase.COMPLETED.value
-        assert len(log_data["rounds"]) == 1
-        assert log_data["final_scores"]["Alice"] == 4
+            assert log_data["status"] == GamePhase.COMPLETED.value
+            assert len(log_data["rounds"]) == 1
+            assert log_data["final_scores"]["Alice"] == 4
+        finally:
+            # Cleanup logger to release file handles
+            from loguru import logger
+            logger.remove()
+
+
