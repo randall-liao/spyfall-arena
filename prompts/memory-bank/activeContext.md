@@ -1,18 +1,18 @@
 # Active Context
 
 ## Current Focus
-- Implementing Gitleaks for secret scanning.
-- Configuring pre-commit hooks and CI pipelines.
+The Memory Bank structure has just been established. The focus is now on maintaining this documentation as development proceeds on Phase 1 of Spyfall Arena.
 
 ## Recent Changes
-- Added `pre-commit` as a dev dependency.
-- Created `.pre-commit-config.yaml` with Gitleaks hook (v8.29.1).
-- Added `.gitleaks.toml` with default rules.
-- Created `scripts/setup-git-hooks.sh` for easy installation.
-- Created `.github/workflows/gitleaks.yml` for CI verification.
-- Updated `README.md` with security instructions.
+-   **Documentation**: Initialized the Memory Bank in `prompts/memory-bank`.
+-   **Phase 1 Development**: Core game engine implemented (Rules, Roles, Q/A, Voting, Config, Logging).
+-   **Architecture**: `src` layout and `game_logging` are stable.
 
 ## Active Decisions
-- **Gitleaks Version:** Pinned to v8.29.1 (latest stable at implementation).
-- **CI Provider:** GitHub Actions chosen as the primary CI platform.
-- **Configuration:** Using default Gitleaks rules maintained in `.gitleaks.toml` in the repo root.
+-   **Documentation Strategy**: Using the "Memory Bank" pattern to maintain project context.
+-   **Testing Strategy**: Strictly unit tests with mocks.
+-   **Logging**: `game_logging` module handles all output.
+
+## Next Steps
+1.  Implement basic evaluation metrics (Phase 1).
+2.  Begin planning for Phase 2 (Tournament automation).
