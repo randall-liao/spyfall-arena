@@ -54,7 +54,9 @@ class TestApiKeyManager(unittest.TestCase):
         with patch("builtins.open", unittest.mock.mock_open(read_data="")):
             with patch("yaml.safe_load", return_value=mock_yaml_data):
                 with patch("pathlib.Path.is_file", return_value=True):
-                    self.assertEqual(self.manager.get_google_api_key(), "yaml-google-key")
+                    self.assertEqual(
+                        self.manager.get_google_api_key(), "yaml-google-key"
+                    )
 
     @patch("config.api_key_manager.logger")
     @patch("keyring.get_password", side_effect=Exception("Keyring error"))

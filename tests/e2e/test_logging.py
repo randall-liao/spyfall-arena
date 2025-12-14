@@ -57,6 +57,5 @@ def test_e2e_logging_from_main():
         finally:
             # Cleanup logger to release file handles
             from loguru import logger
+
             logger.remove()
-
-
