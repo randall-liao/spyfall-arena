@@ -37,6 +37,12 @@ It aims to evaluate how different LLMs perform in reasoning, deception, and dedu
     poetry install
     ```
 
+3.  **Install Git Hooks (Security):**
+    ```bash
+    ./scripts/setup-git-hooks.sh
+    ```
+    This configures Gitleaks to automatically scan your commits for secrets.
+
 ### 3. API Key Configuration
 
 This project supports LLM providers via API keys.
@@ -126,6 +132,12 @@ poetry run pytest
 ```
 
 ---
+
+## 🔐 Security
+
+*   **Pre-commit Hooks:** Gitleaks is configured to scan all commits locally.
+*   **CI/CD:** GitHub Actions verifies that no secrets are present in pushes and pull requests.
+*   **Configuration:** The `.gitleaks.toml` file in the root directory controls the scanning rules.
 
 ## 🚀 Project Phases
 
