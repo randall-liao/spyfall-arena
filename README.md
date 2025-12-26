@@ -65,6 +65,41 @@ The most secure way to store your API keys is using your system's credential man
     ```
     When prompted, paste your Google API key.
 
+#### Important Note for WSL Users
+
+If you are running this project in **WSL (Windows Subsystem for Linux)**, the system keyring (e.g., Gnome Keyring) is not enabled by default. To use the secure credential manager:
+
+1.  **Run the Setup Script:**
+    We provide a helper script to install dependencies (`gnome-keyring`, `dbus-x11`) and check your environment.
+    ```bash
+    # Run once to install dependencies
+    chmod +x scripts/setup_wsl_keyring.sh
+    ./scripts/setup_wsl_keyring.sh
+    ```
+
+2.  **Configure Your Shell:**
+    You must initialize the D-Bus session and unlock the keyring in your shell session. Add the following to your `~/.bashrc` (or run manually before using the app):
+
+    ```bash
+    # Set Runtime Directory
+    export XDG_RUNTIME_DIR=/run/user/$(id -u)
+    if [ ! -d "$XDG_RUNTIME_DIR" ]; then
+        sudo mkdir -p "$XDG_RUNTIME_DIR"
+        sudo chown $(id -u):$(id -g) "$XDG_RUNTIME_DIR"
+        chmod 700 "$XDG_RUNTIME_DIR"
+    fi
+
+    # Start DBus Session
+    if [ -z "$DBUS_SESSION_BUS_ADDRESS" ]; then
+        eval $(dbus-launch --sh-syntax)
+    fi
+
+    # Unlock Keyring (Requires your WSL password 'devuser', or whatever you set)
+    # Note: echo works for simple unlock, but interactive unlock is safer if available
+    echo -n "devuser" | gnome-keyring-daemon --unlock
+    ```
+    *Replace `"devuser"` with your actual WSL password if different.*
+
 3.  **Verify the keys:**
     ```bash
     keyring get spyfall-arena openrouter_api_key
