@@ -1,3 +1,4 @@
+from llm.enum import LLMClientType
 from loguru import logger
 
 from config.api_key_manager import ApiKeyManager
@@ -16,6 +17,7 @@ class LLMClientFactory:
         self,
         model_name: str,
         temperature: float = 0.7,
+        client_type: LLMClientType | None = None,
     ) -> BaseLLMClient:
         """
         Factory method to create an LLM client.
@@ -24,7 +26,7 @@ class LLMClientFactory:
         logger.debug(
             f"Creating LLM client for model: {model_name} (temp={temperature})"
         )
-        if model_name.lower().startswith("gemini"):
+        if model_name.lower().startswith("gemini") or client_type == LLMClientType.GOOGLE_AI_STUDIO:
             api_key = self.api_key_manager.get_google_api_key()
             return GeminiClient(
                 model_name=model_name,
