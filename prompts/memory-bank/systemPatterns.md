@@ -37,6 +37,12 @@ Components are designed to be testable in isolation.
 2.  `apikeys.yaml` (fallback, discouraged).
 This keeps secrets out of the codebase and environment variables (mostly).
 
+### 5. Rate Limiting
+**Pattern**: Token Bucket.
+-   A shared `TokenBucketLimiter` is injected into LLM Clients by the factories.
+-   Prevents `RESOURCE_EXHAUSTED` errors from API providers (especially Gemini).
+-   Configurable via `config.yaml` (enabled, rate, burst).
+
 ## Critical Implementation Paths
 1.  **Game Loop**: `GameRunner` -> `GameState` -> `Player` -> `LLMClient` -> API.
 2.  **Prompt Engineering**: Converting game state into effective prompts for the LLM is crucial for performance.

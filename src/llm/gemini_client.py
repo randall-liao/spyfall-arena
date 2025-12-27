@@ -1,10 +1,13 @@
 import json
-from typing import Any, Dict, Optional, cast
+from typing import Any, Dict, Optional, cast, TYPE_CHECKING
 
 from google import genai
 from google.genai import types
 
 from llm.base_client import BaseLLMClient
+
+if TYPE_CHECKING:
+    from llm.rate_limiter import TokenBucketLimiter
 
 
 class GeminiClient(BaseLLMClient):
@@ -15,9 +18,11 @@ class GeminiClient(BaseLLMClient):
         model_name: str,
         api_key: str,
         temperature: float = 0.7,
+        rate_limiter: Optional["TokenBucketLimiter"] = None,
     ):
         self.api_key = api_key
         self.client = genai.Client(api_key=api_key)
+        self.rate_limiter = rate_limiter
         super().__init__(model_name, temperature)
 
     def _validate_config(self) -> None:
@@ -73,6 +78,9 @@ class GeminiClient(BaseLLMClient):
         self, messages: list, temperature: float, response_format: Optional[dict] = None
     ) -> Dict[str, Any]:
         """Makes an API call to Gemini."""
+
+        if self.rate_limiter:
+            self.rate_limiter.wait_for_token()
 
         system_instruction, contents = self._map_messages_to_gemini_format(messages)
 

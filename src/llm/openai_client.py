@@ -1,9 +1,12 @@
 import json
-from typing import Any, Dict, Optional, cast
+from typing import Any, Dict, Optional, cast, TYPE_CHECKING
 
 from openai import OpenAI
 
 from llm.base_client import BaseLLMClient
+
+if TYPE_CHECKING:
+    from llm.rate_limiter import TokenBucketLimiter
 
 
 class OpenAIClient(BaseLLMClient):
@@ -14,12 +17,14 @@ class OpenAIClient(BaseLLMClient):
         model_name: str,
         api_key: str,
         temperature: float = 0.7,
+        rate_limiter: Optional["TokenBucketLimiter"] = None,
     ):
         self.api_key = api_key
         self.client = OpenAI(
             base_url="https://openrouter.ai/api/v1",
             api_key=api_key,
         )
+        self.rate_limiter = rate_limiter
         super().__init__(model_name, temperature)
 
     def _validate_config(self) -> None:
