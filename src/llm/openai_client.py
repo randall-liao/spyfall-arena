@@ -18,6 +18,7 @@ class OpenAIClient(BaseLLMClient):
         api_key: str,
         temperature: float = 0.7,
         rate_limiter: Optional["TokenBucketLimiter"] = None,
+        reasoning_config: Optional[Dict[str, Any]] = None,
     ):
         self.api_key = api_key
         self.client = OpenAI(
@@ -25,6 +26,7 @@ class OpenAIClient(BaseLLMClient):
             api_key=api_key,
         )
         self.rate_limiter = rate_limiter
+        self.reasoning_config = reasoning_config
         super().__init__(model_name, temperature)
 
     def _validate_config(self) -> None:
@@ -38,11 +40,19 @@ class OpenAIClient(BaseLLMClient):
         self, messages: list, temperature: float, response_format: Optional[dict] = None
     ) -> Dict[str, Any]:
         """Makes an API call to OpenRouter using the OpenAI SDK."""
+        extra_body = {}
+        if self.reasoning_config:
+            # Filter out None values
+            reasoning = {k: v for k, v in self.reasoning_config.items() if v is not None}
+            if reasoning:
+                extra_body["reasoning"] = reasoning
+
         completion = self.client.chat.completions.create(
             model=self.model_name,
             messages=messages,
             temperature=temperature,
             response_format=cast(Any, response_format),
+            extra_body=extra_body if extra_body else None,
         )
         return cast(Dict[str, Any], completion.dict())
 

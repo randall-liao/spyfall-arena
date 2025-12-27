@@ -140,6 +140,26 @@ llm:
   temperature: 0.7
 ```
 
+#### OpenRouter Reasoning Tokens
+
+For models that support "Reasoning Tokens" (thinking tokens) via OpenRouter (e.g., OpenAI o1/o3, Anthropic Claude 3.7 Sonnet), you can configure reasoning parameters in the player configuration.
+
+```yaml
+players:
+  - nickname: "Alice"
+    model_name: "openai/o3-mini"
+    temperature: 0.7
+    reasoning:
+      effort: "medium"   # high, medium, low, etc.
+      exclude: false     # Set to true to hide reasoning from output
+```
+
+Supported fields:
+- `effort`: Controls reasoning depth (`high`, `medium`, `low`, etc.).
+- `max_tokens`: Sets a hard limit on reasoning tokens.
+- `exclude`: If `true`, reasoning tokens are generated but not returned in the response.
+- `enabled`: Explicitly enable reasoning (often inferred from other fields).
+
 ### 5. Running the Application
 
 To run a game, you need to provide a configuration file.

@@ -57,9 +57,13 @@ class SpyGuessManager:
         player_config = next(
             p for p in self.config.players if p.nickname == spy_nickname
         )
+        reasoning = (
+            player_config.reasoning.model_dump() if player_config.reasoning else None
+        )
         llm_client = self.llm_factory.create_client(
             model_name=player_config.model_name,
             temperature=player_config.temperature,
+            reasoning_config=reasoning,
         )
         structured_response = llm_client.generate_structured_response(
             system_prompt,

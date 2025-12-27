@@ -6,6 +6,10 @@ Recently completed **Rate Limiting** implementation to prevent `RESOURCE_EXHAUST
 
 ## Recent Changes
 -   **Documentation**: Initialized the Memory Bank in `prompts/memory-bank`.
+-   **Feature**: Implemented OpenRouter "Reasoning Tokens" support.
+    -   Added `ReasoningConfig` to player configuration.
+    -   Updated `OpenAIClient` to pass reasoning parameters via `extra_body`.
+    -   Updated game managers to propagate reasoning settings.
 -   **Phase 1 Development**: Core game engine implemented (Rules, Roles, Q/A, Voting, Config, Logging).
 -   **Robustness**: Implemented Token Bucket rate limiter for Gemini API.
 -   **Architecture**: `src` layout and `game_logging` are stable.

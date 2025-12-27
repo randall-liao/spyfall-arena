@@ -74,9 +74,13 @@ class TurnManager:
         asker_config = next(
             p for p in self.config.players if p.nickname == current_asker
         )
+        asker_reasoning = (
+            asker_config.reasoning.model_dump() if asker_config.reasoning else None
+        )
         asker_llm_client = self.llm_factory.create_client(
             model_name=asker_config.model_name,
             temperature=asker_config.temperature,
+            reasoning_config=asker_reasoning,
         )
 
         structured_question = asker_llm_client.generate_structured_response(
@@ -111,9 +115,13 @@ class TurnManager:
         answerer_config = next(
             p for p in self.config.players if p.nickname == target_nickname
         )
+        answerer_reasoning = (
+            answerer_config.reasoning.model_dump() if answerer_config.reasoning else None
+        )
         answerer_llm_client = self.llm_factory.create_client(
             model_name=answerer_config.model_name,
             temperature=answerer_config.temperature,
+            reasoning_config=answerer_reasoning,
         )
         structured_answer = answerer_llm_client.generate_structured_response(
             system_prompt,
