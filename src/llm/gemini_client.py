@@ -1,13 +1,122 @@
 import json
 from typing import Any, Dict, Optional, cast, TYPE_CHECKING
+from tenacity import (
+    stop_after_attempt,
+    retry_if_exception,
+    retry,
+    RetryCallState,
+    before_sleep_log,
+)
+import logging
 
 from google import genai
 from google.genai import types
 
 from llm.base_client import BaseLLMClient
+from llm.exceptions import MaxRetriesExceededError
 
 if TYPE_CHECKING:
     from llm.rate_limiter import TokenBucketLimiter
+
+logger = logging.getLogger(__name__)
+
+if TYPE_CHECKING:
+    from llm.rate_limiter import TokenBucketLimiter
+
+logger = logging.getLogger(__name__)
+
+
+def wait_from_google_retry_info(retry_state: "RetryCallState") -> float:
+    """
+    Custom wait strategy that inspects the exception for Google's retryDelay.
+    Defaults to 15 seconds if no retry info is found.
+    """
+    default_wait = 15.0
+    """
+    Custom wait strategy that inspects the exception for Google's retryDelay.
+    Defaults to 15 seconds if no retry info is found.
+    """
+    default_wait = 15.0
+    if not retry_state.outcome or not retry_state.outcome.exception():
+        logger.debug("No exception found in retry state, using default wait.")
+        return default_wait
+
+    exc = retry_state.outcome.exception()
+    logger.debug(f"Parsing retry delay from exception: {exc}")
+
+    # Check for details in the exception (common in Google RPC errors)
+    # The structure usually involves a 'details' list.
+    # Validating against dictionary structure shown in logs.
+
+    # We try to access the `details` attribute if it exists (e.g. google.api_core.exceptions.GoogleAPICallError)
+    # Or strict dict access if the exception itself carries the payload (less common in Python SDK objects but possible)
+
+    details = getattr(exc, "details", [])
+    if isinstance(details, dict):
+        # google.genai.errors.ClientError stores the full response JSON in .details
+        # We need to traverse down to find the actual list of details
+        # Structure: {'error': {'details': [...]}} or just {'details': [...]}
+        retry_info = details.get("details", [])
+        if not retry_info:
+            retry_info = details.get("error", {}).get("details", [])
+        details = retry_info
+
+    if not details and hasattr(exc, "args") and len(exc.args) > 0:
+        # Sometimes the error details are in the args[0] if it's a raw dict wrapper
+        arg0 = exc.args[0]
+        if isinstance(arg0, dict):
+            details = arg0.get("details", [])
+
+    # If details is still empty/not found, we might need to inspect message text or other properties
+    # But based on user log, it looks like a structured error object.
+
+    # Iterate through details to find RetryInfo
+    # The structure in log: {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '21s'}
+
+    # Note: `details` might be a list of dicts (if parsed) or protobuf messages.
+    # We will assume list of dicts or objects we can getattr/getitem.
+
+    for detail in details:
+        # Handle dict case
+        if isinstance(detail, dict):
+            type_url = detail.get("@type", "")
+            if "google.rpc.RetryInfo" in type_url:
+                delay_str = detail.get("retryDelay", "")
+                if delay_str:
+                    try:
+                        # Format is usually "21s" or "21.123s"
+                        wait_time = float(delay_str.rstrip("s"))
+                        logger.debug(
+                            f"Found explicit retryDelay in details: {wait_time}s"
+                        )
+                        # Add buffer to ensure we don't hit rate limit again immediately
+                        return wait_time + 3.0
+                    except ValueError:
+                        pass
+        # Handle object case (if protobuf)
+        elif hasattr(detail, "retry_delay"):
+            # Some google runtimes convert this
+            try:
+                wait_time = (
+                    float(detail.retry_delay.seconds)
+                    + float(detail.retry_delay.nanos) / 1e9
+                )
+                logger.debug(f"Found explicit retryDelay in protobuf: {wait_time}s")
+                # Add buffer to ensure we don't hit rate limit again immediately
+                return wait_time + 3.0
+            except (ValueError, AttributeError):
+                pass
+
+    logger.debug(f"No explicit retry info found, using default wait: {default_wait}s")
+    return default_wait
+
+
+def on_retry_error(retry_state: "RetryCallState"):
+    """Callback for when retries are exhausted."""
+    exc = retry_state.outcome.exception()
+    attempts = retry_state.attempt_number
+    logger.error(f"Max retries ({attempts}) exceeded. Final error: {exc}")
+    raise MaxRetriesExceededError(exc, attempts) from exc
 
 
 class GeminiClient(BaseLLMClient):
@@ -74,6 +183,16 @@ class GeminiClient(BaseLLMClient):
 
         return system_instruction, contents
 
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_from_google_retry_info,
+        retry=retry_if_exception(
+            lambda e: "429" in str(e) or getattr(e, "code", 0) == 429
+        ),
+        before_sleep=before_sleep_log(logger, logging.WARNING),
+        retry_error_callback=on_retry_error,
+        reraise=True,
+    )
     def _make_api_call(
         self, messages: list, temperature: float, response_format: Optional[dict] = None
     ) -> Dict[str, Any]:

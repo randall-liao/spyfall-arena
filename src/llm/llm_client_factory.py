@@ -43,6 +43,8 @@ class LLMClientFactory:
         if (
             model_name.lower().startswith("gemini")
             or model_name.lower().startswith("models/gemini")
+            or model_name.lower().startswith("gemma")
+            or model_name.lower().startswith("models/gemma")
             or client_type == LLMClientType.GOOGLE_AI_STUDIO
         ):
             api_key = self.api_key_manager.get_google_api_key()

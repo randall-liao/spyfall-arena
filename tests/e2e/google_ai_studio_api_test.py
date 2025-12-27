@@ -9,7 +9,7 @@ from config.api_key_manager import ApiKeyManager
 api_key_manager: ApiKeyManager = ApiKeyManager()
 client_factory: LLMClientFactory = LLMClientFactory(api_key_manager)
 gemini_client: GeminiClient = client_factory.create_client(
-    model_name="models/gemini-flash-lite-latest",
+    model_name="models/gemma-3-27b-it",
     client_type=LLMClientType.GOOGLE_AI_STUDIO,
     temperature=0.7,
 )

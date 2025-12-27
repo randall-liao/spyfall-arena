@@ -17,7 +17,8 @@ dependencies = [
     "openai (>=1.0.0,<2.0.0)",
     "google-genai (>=1.52.0,<2.0.0)",
     "keyrings-alt (>=5.0.2,<6.0.0)",
-    "pycryptodome (>=3.23.0,<4.0.0)"
+    "pycryptodome (>=3.23.0,<4.0.0)",
+    "tenacity (>=9.0.0,<10.0.0)"
 ]
 
 [tool.poetry.group.dev.dependencies]

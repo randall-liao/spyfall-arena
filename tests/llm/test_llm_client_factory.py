@@ -44,3 +44,16 @@ class TestLLMClientFactory(unittest.TestCase):
         client = self.factory.create_client(model_name="Gemini-Pro", temperature=0.8)
 
         self.assertIsInstance(client, GeminiClient)
+
+    @patch("llm.gemini_client.genai.Client")
+    def test_create_gemma_client(self, mock_genai_client):
+        self.mock_api_key_manager.get_google_api_key.return_value = "AIza-google-key"
+
+        client = self.factory.create_client(
+            model_name="models/gemma-3-27b", temperature=0.9
+        )
+
+        self.assertIsInstance(client, GeminiClient)
+        self.assertEqual(client.model_name, "models/gemma-3-27b")
+        self.mock_api_key_manager.get_google_api_key.assert_called_once()
+        self.mock_api_key_manager.get_api_key.assert_not_called()
