@@ -36,8 +36,15 @@ class LoggingConfig(BaseModel):
         return upper_value
 
 
+class RateLimitConfig(BaseModel):
+    enabled: bool = True
+    requests_per_minute: int = Field(default=15, gt=0)
+    burst_limit: int = Field(default=5, gt=0)
+
+
 class GameConfig(BaseModel):
     game: GameRulesConfig = Field(default_factory=GameRulesConfig)
+    rate_limit: RateLimitConfig = Field(default_factory=RateLimitConfig)
     players: List[PlayerConfig] = Field(..., min_length=2, max_length=12)
     locations: List[str] = Field(..., min_length=1)
     prompts: PromptsConfig = Field(default_factory=PromptsConfig)

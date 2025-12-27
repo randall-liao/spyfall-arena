@@ -59,7 +59,7 @@ def test_game_runner_integration(mock_openai_class, mock_keyring, capsys):
     mock_openai_class.return_value = mock_openai_instance
 
     # Mock sys.argv to pass the config file path to the main function
-    test_args = ["game_runner.py", "config.yaml"]
+    test_args = ["game_runner.py", "game_configs/config.yaml"]
     with patch.object(sys, "argv", test_args):
         # Call the main function
         game_runner.main()

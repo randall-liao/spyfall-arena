@@ -21,7 +21,7 @@ class GameOrchestrator:
     def __init__(self, config: GameConfig):
         self.config = config
         self.api_key_manager = ApiKeyManager()
-        self.llm_factory = LLMClientFactory(self.api_key_manager)
+        self.llm_factory = LLMClientFactory(self.api_key_manager, self.config)
         self.prompt_builder = PromptBuilder(config)
         self.prompt_builder.load_templates()
         self.role_assigner = RoleAssigner(config.game.random_seed or 42)
@@ -49,7 +49,7 @@ class GameOrchestrator:
         game_state.player_scores = {nickname: 0 for nickname in player_nicknames}
 
         for i in range(self.config.game.num_rounds):
-            logger.info(f"Starting Round {i+1}")
+            logger.info(f"Starting Round {i + 1}")
             round_state = self.run_round(
                 i + 1, player_nicknames, list(self.config.locations)
             )

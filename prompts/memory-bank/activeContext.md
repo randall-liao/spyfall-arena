@@ -2,10 +2,12 @@
 
 ## Current Focus
 The Memory Bank structure has just been established. The focus is now on maintaining this documentation as development proceeds on Phase 1 of Spyfall Arena.
+Recently completed **Rate Limiting** implementation to prevent `RESOURCE_EXHAUSTED` errors.
 
 ## Recent Changes
 -   **Documentation**: Initialized the Memory Bank in `prompts/memory-bank`.
 -   **Phase 1 Development**: Core game engine implemented (Rules, Roles, Q/A, Voting, Config, Logging).
+-   **Robustness**: Implemented Token Bucket rate limiter for Gemini API.
 -   **Architecture**: `src` layout and `game_logging` are stable.
 
 ## Active Decisions

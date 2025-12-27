@@ -9,6 +9,7 @@
 - [x] **Configuration**: YAML support.
 - [x] **Logging**: Structured JSON logging via `game_logging`.
 - [x] **LLM Integration**: Support for OpenRouter and Google Gemini.
+- [x] **Robustness**: Rate limiting (Token Bucket) to handle API quotas.
 - [ ] **Evaluation**: Basic metrics (win rate, suspicion rate).
 
 ### Phase 2: Comparative Arena - **PLANNED**

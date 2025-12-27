@@ -23,7 +23,6 @@ def mock_openai():
         patch("llm.openai_client.OpenAI") as mock_class,
         patch("config.api_key_manager.keyring.get_password", return_value="fake_key"),
     ):
-
         mock_instance = MagicMock()
 
         # Setup a sequence of responses that allows the game to proceed through a round
@@ -52,7 +51,7 @@ def mock_openai():
 
 def test_console_logging_debug(mock_openai, capsys):
     """Verifies that DEBUG logs are emitted when --log-level DEBUG is set."""
-    test_args = ["game_runner.py", "config.yaml", "--log-level", "DEBUG"]
+    test_args = ["game_runner.py", "game_configs/config.yaml", "--log-level", "DEBUG"]
 
     with patch.object(sys, "argv", test_args):
         try:
@@ -75,7 +74,7 @@ def test_console_logging_debug(mock_openai, capsys):
 
 def test_console_logging_error_suppression(mock_openai, capsys):
     """Verifies that INFO logs are suppressed when --log-level ERROR is set."""
-    test_args = ["game_runner.py", "config.yaml", "--log-level", "ERROR"]
+    test_args = ["game_runner.py", "game_configs/config.yaml", "--log-level", "ERROR"]
 
     with patch.object(sys, "argv", test_args):
         try:

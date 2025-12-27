@@ -1,3 +1,10 @@
+"""
+End-to-end tests for the OpenRouter API implementation.
+
+This module contains tests that perform actual API calls to verify the OpenRouter
+client and API key functionality. These tests should not be run in CI/CD environments.
+"""
+
 from config.api_key_manager import ApiKeyManager
 from llm.base_client import BaseLLMClient
 from llm.llm_client_factory import LLMClientFactory
@@ -11,10 +18,5 @@ open_router_client: BaseLLMClient = client_factory.create_client(
 
 
 if __name__ == "__main__":
-    """
-    This test will actually call the OpenRouter API to test the API key.
-    So don't run it with pytest or in CI/CD
-    """
-
     response: str = open_router_client.generate_response("Hello", "Hello")
     print(response)

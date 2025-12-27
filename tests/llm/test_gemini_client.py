@@ -1,10 +1,10 @@
-import json
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, PropertyMock
 
-from google.genai import types
 
-from llm.gemini_client import GeminiClient
+from tenacity import RetryCallState
+from llm.gemini_client import GeminiClient, wait_from_google_retry_info
+from llm.exceptions import MaxRetriesExceededError
 
 
 class TestGeminiClient(unittest.TestCase):
@@ -129,3 +129,251 @@ class TestGeminiClient(unittest.TestCase):
 
         response = self.client._make_api_call(messages, temperature=0.5)
         self.assertEqual(response, {"text": ""})
+
+    @patch("time.sleep", return_value=None)
+    def test_make_api_call_retry_success(self, mock_sleep):
+        messages = [{"role": "user", "content": "Retry me"}]
+        mock_response = MagicMock()
+        mock_response.text = "Success"
+
+        # Simulate 2 failures then success
+        # We need an exception that triggers the retry.
+        # Our predicate checks "429" in str(e) or e.code == 429.
+        error_429 = Exception("429 RESOURCE_EXHAUSTED")
+
+        self.mock_client_instance.models.generate_content.side_effect = [
+            error_429,
+            error_429,
+            mock_response,
+        ]
+
+        response = self.client._make_api_call(messages, temperature=0.5)
+
+        self.assertEqual(response, {"text": "Success"})
+        self.assertEqual(
+            self.mock_client_instance.models.generate_content.call_count, 3
+        )
+
+    @patch("time.sleep", return_value=None)
+    def test_make_api_call_retry_failure(self, mock_sleep):
+        messages = [{"role": "user", "content": "Fail me"}]
+
+        error_429 = Exception("429 RESOURCE_EXHAUSTED")
+        self.mock_client_instance.models.generate_content.side_effect = error_429
+
+        with self.assertRaises(MaxRetriesExceededError) as cm:
+            self.client._make_api_call(messages, temperature=0.5)
+
+        self.assertIn("429", str(cm.exception))
+        self.assertEqual(cm.exception.attempts, 3)
+        self.assertEqual(
+            self.mock_client_instance.models.generate_content.call_count, 3
+        )
+
+    @patch("time.sleep", return_value=None)
+    def test_make_api_call_no_retry_on_other_error(self, mock_sleep):
+        messages = [{"role": "user", "content": "Fail me once"}]
+
+        error_500 = Exception("500 Internal Server Error")
+        self.mock_client_instance.models.generate_content.side_effect = error_500
+
+        with self.assertRaises(Exception) as cm:
+            self.client._make_api_call(messages, temperature=0.5)
+
+        self.assertIn("500", str(cm.exception))
+        self.assertEqual(
+            self.mock_client_instance.models.generate_content.call_count, 1
+        )
+
+    def test_make_api_call_checks_rate_limiter(self):
+        mock_limiter = MagicMock()
+        self.client.rate_limiter = mock_limiter
+
+        messages = [{"role": "user", "content": "Hello"}]
+        mock_response = MagicMock()
+        mock_response.text = "Hello"
+        self.mock_client_instance.models.generate_content.return_value = mock_response
+
+        self.client._make_api_call(messages, temperature=0.5)
+
+        mock_limiter.wait_for_token.assert_called_once()
+
+    def test_wait_from_google_retry_info_with_details(self):
+        # Mocking the RetryCallState and Exception structure
+        mock_retry_state = MagicMock(spec=RetryCallState)
+        mock_exception = MagicMock()
+
+        # Structure: exc.details = [{'@type': '...RetryInfo', 'retryDelay': '21.5s'}]
+        mock_exception.details = [
+            {"@type": "type.googleapis.com/google.rpc.RetryInfo", "retryDelay": "21.5s"}
+        ]
+
+        mock_outcome = MagicMock()
+        mock_outcome.exception.return_value = mock_exception
+        mock_retry_state.outcome = mock_outcome
+
+        wait_time = wait_from_google_retry_info(mock_retry_state)
+        # Expected: 21.5s + 3.0s buffer = 24.5s
+        self.assertEqual(wait_time, 24.5)
+
+    def test_wait_from_google_retry_info_default(self):
+        # Case where no retry info is present
+        mock_retry_state = MagicMock(spec=RetryCallState)
+        mock_exception = MagicMock()
+        mock_exception.details = []  # Empty details
+
+        mock_outcome = MagicMock()
+        mock_outcome.exception.return_value = mock_exception
+        mock_retry_state.outcome = mock_outcome
+
+        wait_time = wait_from_google_retry_info(mock_retry_state)
+        # Should return default 15s (no buffer applied to default)
+        self.assertEqual(wait_time, 15.0)
+
+    def test_wait_from_google_retry_info_nested_args(self):
+        # Case where details are in args[0] (dict wrapper)
+        mock_retry_state = MagicMock(spec=RetryCallState)
+        mock_exception = Exception(
+            {
+                "details": [
+                    {
+                        "@type": "type.googleapis.com/google.rpc.RetryInfo",
+                        "retryDelay": "10s",
+                    }
+                ]
+            }
+        )
+
+        mock_outcome = MagicMock()
+        mock_outcome.exception.return_value = mock_exception
+        mock_retry_state.outcome = mock_outcome
+
+        wait_time = wait_from_google_retry_info(mock_retry_state)
+        # Expected: 10s + 3.0s buffer = 13.0s
+        self.assertEqual(wait_time, 13.0)
+
+    def test_wait_from_google_retry_info_invalid_string(self):
+        mock_retry_state = MagicMock(spec=RetryCallState)
+        mock_exception = MagicMock()
+        mock_exception.details = [
+            {
+                "@type": "type.googleapis.com/google.rpc.RetryInfo",
+                "retryDelay": "invalid",
+            }
+        ]
+        mock_outcome = MagicMock()
+        mock_outcome.exception.return_value = mock_exception
+        mock_retry_state.outcome = mock_outcome
+
+        # Should fallback to default because parsing fails
+        self.assertEqual(wait_from_google_retry_info(mock_retry_state), 15.0)
+
+    def test_wait_from_google_retry_info_protobuf(self):
+        mock_retry_state = MagicMock(spec=RetryCallState)
+        mock_exception = MagicMock()
+
+        # Mocking a protobuf-like object
+        mock_detail = MagicMock()
+        mock_detail.retry_delay.seconds = 5
+        mock_detail.retry_delay.nanos = 500000000  # 0.5s
+        # Only has retry_delay, doesn't match dict check
+        mock_exception.details = [mock_detail]
+
+        mock_outcome = MagicMock()
+        mock_outcome.exception.return_value = mock_exception
+        mock_retry_state.outcome = mock_outcome
+
+        # Expected: 5.5s + 3.0s buffer = 8.5s
+        self.assertEqual(
+            wait_time := wait_from_google_retry_info(mock_retry_state), 8.5
+        )
+
+    def test_wait_from_google_retry_info_protobuf_error(self):
+        mock_retry_state = MagicMock(spec=RetryCallState)
+        mock_exception = MagicMock()
+
+        # Mocking a protobuf-like object that raises error on property access
+        class BadRetryDelay:
+            @property
+            def retry_delay(self):
+                # This mimics the attribute existing but raising on access?
+                # No, we want hasattr(detail, 'retry_delay') to be True
+                # But accessing detail.retry_delay to raise? or detail.retry_delay.seconds?
+                # The code: hasattr(detail, "retry_delay") -> True
+                # try: float(detail.retry_delay.seconds) ...
+                # So we return an object whose .seconds raises.
+                return self
+
+            @property
+            def seconds(self):
+                raise AttributeError("Fail")
+
+        mock_detail = BadRetryDelay()
+        mock_exception.details = [mock_detail]
+
+        mock_outcome = MagicMock()
+        mock_outcome.exception.return_value = mock_exception
+        mock_retry_state.outcome = mock_outcome
+
+        self.assertEqual(wait_from_google_retry_info(mock_retry_state), 15.0)
+
+    def test_init_with_rate_limiter(self):
+        mock_limiter = MagicMock()
+        client = GeminiClient(self.model_name, self.api_key, rate_limiter=mock_limiter)
+        self.assertEqual(client.rate_limiter, mock_limiter)
+
+    def test_wait_from_google_retry_info_no_outcome(self):
+        mock_retry_state = MagicMock(spec=RetryCallState)
+        mock_retry_state.outcome = None
+        self.assertEqual(wait_from_google_retry_info(mock_retry_state), 15.0)
+
+        mock_retry_state.outcome = MagicMock()
+        mock_retry_state.outcome.exception.return_value = None
+        self.assertEqual(wait_from_google_retry_info(mock_retry_state), 15.0)
+
+    def test_wait_from_google_retry_info_dict_structure(self):
+        mock_retry_state = MagicMock(spec=RetryCallState)
+        mock_exception = MagicMock()
+
+        # Structure found in real ClientError: {'error': {'details': [...]}}
+        # But ClientError.details returns this dict directly
+        mock_exception.details = {
+            "error": {
+                "details": [
+                    {
+                        "@type": "type.googleapis.com/google.rpc.RetryInfo",
+                        "retryDelay": "25s",
+                    }
+                ]
+            }
+        }
+
+        mock_outcome = MagicMock()
+        mock_outcome.exception.return_value = mock_exception
+        mock_retry_state.outcome = mock_outcome
+
+        mock_retry_state.outcome = mock_outcome
+
+        # Expected: 25s + 3.0s buffer = 28.0s
+        self.assertEqual(wait_from_google_retry_info(mock_retry_state), 28.0)
+
+    def test_wait_from_google_retry_info_dict_structure_flat(self):
+        mock_retry_state = MagicMock(spec=RetryCallState)
+        mock_exception = MagicMock()
+
+        # Structure: {'details': [...]} (hypothetical)
+        mock_exception.details = {
+            "details": [
+                {
+                    "@type": "type.googleapis.com/google.rpc.RetryInfo",
+                    "retryDelay": "20s",
+                }
+            ]
+        }
+
+        mock_outcome = MagicMock()
+        mock_outcome.exception.return_value = mock_exception
+        mock_retry_state.outcome = mock_outcome
+
+        # Expected: 20s + 3.0s buffer = 23.0s
+        self.assertEqual(wait_from_google_retry_info(mock_retry_state), 23.0)
