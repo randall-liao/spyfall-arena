@@ -12,8 +12,11 @@ from llm.llm_client_factory import LLMClientFactory
 api_key_manager: ApiKeyManager = ApiKeyManager()
 client_factory: LLMClientFactory = LLMClientFactory(api_key_manager)
 open_router_client: BaseLLMClient = client_factory.create_client(
-    model_name="google/gemma-3-27b-it",
+    model_name="z-ai/glm-4.5-air:free",
     temperature=0.7,
+    reasoning_config={
+        "enabled": True,
+    },
 )
 
 

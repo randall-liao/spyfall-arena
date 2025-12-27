@@ -4,6 +4,9 @@ import pytest
 
 from llm.llm_client_factory import LLMClientFactory
 from llm.openai_client import OpenAIClient
+from llm.exceptions import MaxRetriesExceededError
+from openai import RateLimitError
+import httpx
 
 
 @pytest.fixture
@@ -88,3 +91,58 @@ def test_llm_client_factory():
     client = factory.create_client(model_name="test-model")
     assert isinstance(client, OpenAIClient)
     assert client.model_name == "test-model"
+
+
+def test_openai_retry_success_after_failure():
+    """Test that the client retries on RateLimitError and eventually succeeds."""
+    mock_response = MagicMock()
+    mock_response.dict.return_value = {"choices": [{"message": {"content": "Success"}}]}
+
+    # Create a mock client that raises RateLimitError twice then succeeds
+    mock_openai_instance = MagicMock()
+
+    mock_http_response = httpx.Response(
+        status_code=429, request=httpx.Request("POST", "http://test")
+    )
+    error = RateLimitError(
+        "Rate limit exceeded", response=mock_http_response, body=None
+    )
+
+    # side_effect: fail, fail, success
+    mock_openai_instance.chat.completions.create.side_effect = [
+        error,
+        error,
+        mock_response,
+    ]
+
+    with patch("llm.openai_client.OpenAI", return_value=mock_openai_instance):
+        client = OpenAIClient(model_name="test-model", api_key="test-key")
+
+        # Patch sleep to speed up test
+        with patch("time.sleep"):
+            response = client._make_api_call([], 0.7)
+
+    assert response["choices"][0]["message"]["content"] == "Success"
+    assert mock_openai_instance.chat.completions.create.call_count == 3
+
+
+def test_openai_max_retries_exceeded():
+    """Test that MaxRetriesExceededError is raised after max retries."""
+    mock_openai_instance = MagicMock()
+    mock_http_response = httpx.Response(
+        status_code=429, request=httpx.Request("POST", "http://test")
+    )
+    error = RateLimitError(
+        "Rate limit exceeded", response=mock_http_response, body=None
+    )
+
+    mock_openai_instance.chat.completions.create.side_effect = error
+
+    with patch("llm.openai_client.OpenAI", return_value=mock_openai_instance):
+        client = OpenAIClient(model_name="test-model", api_key="test-key")
+
+        with patch("time.sleep"):
+            with pytest.raises(MaxRetriesExceededError) as exc_info:
+                client._make_api_call([], 0.7)
+
+    assert exc_info.value.attempts == 3
