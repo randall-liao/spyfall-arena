@@ -128,10 +128,12 @@ class GeminiClient(BaseLLMClient):
         api_key: str,
         temperature: float = 0.7,
         rate_limiter: Optional["TokenBucketLimiter"] = None,
+        reasoning_config: Optional[Dict[str, Any]] = None,
     ):
         self.api_key = api_key
         self.client = genai.Client(api_key=api_key)
         self.rate_limiter = rate_limiter
+        self.reasoning_config = reasoning_config
         super().__init__(model_name, temperature)
 
     def _validate_config(self) -> None:
