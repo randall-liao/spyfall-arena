@@ -2,10 +2,11 @@ from llm.enum import LLMClientType
 from loguru import logger
 
 from config.api_key_manager import ApiKeyManager
+from typing import Any, Dict, Optional, TYPE_CHECKING
+
 from llm.base_client import BaseLLMClient
 from llm.gemini_client import GeminiClient
 from llm.openai_client import OpenAIClient
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from config.config_schema import GameConfig
@@ -32,6 +33,7 @@ class LLMClientFactory:
         model_name: str,
         temperature: float = 0.7,
         client_type: LLMClientType | None = None,
+        reasoning_config: Optional[Dict[str, Any]] = None,
     ) -> BaseLLMClient:
         """
         Factory method to create an LLM client.
@@ -53,6 +55,7 @@ class LLMClientFactory:
                 api_key=api_key,
                 temperature=temperature,
                 rate_limiter=self.rate_limiter,
+                reasoning_config=reasoning_config,
             )
         else:
             api_key = self.api_key_manager.get_api_key()

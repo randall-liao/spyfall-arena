@@ -3,10 +3,18 @@ from typing import List, Optional
 from pydantic import BaseModel, Field, conint, constr, field_validator
 
 
+class ReasoningConfig(BaseModel):
+    effort: Optional[str] = None
+    max_tokens: Optional[int] = None
+    exclude: Optional[bool] = None
+    enabled: Optional[bool] = None
+
+
 class PlayerConfig(BaseModel):
     nickname: str = Field(..., min_length=1)
     model_name: str = Field(..., min_length=1)
     temperature: float = Field(default=0.7, ge=0.0, le=2.0)
+    reasoning: Optional[ReasoningConfig] = None
 
 
 class GameRulesConfig(BaseModel):
