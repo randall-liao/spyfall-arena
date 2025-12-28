@@ -64,4 +64,5 @@ class LLMClientFactory:
                 api_key=api_key,
                 temperature=temperature,
                 rate_limiter=self.rate_limiter,
+                reasoning_config=reasoning_config,
             )

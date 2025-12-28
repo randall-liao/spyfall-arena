@@ -3,7 +3,7 @@
 game:
   num_rounds: 3
   max_turns_per_round: 20
-  random_seed: 42
+  random_seed: 11
 
 rate_limit:
   enabled: true

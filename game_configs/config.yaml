@@ -3,24 +3,34 @@
 game:
   num_rounds: 3
   max_turns_per_round: 20
-  random_seed: 42
+  random_seed: 236
+
+rate_limit:
+  enabled: true
+  requests_per_minute: 10
+  burst_limit: 2
 
 players:
   - nickname: "Alice"
-    model_name: "openai/gpt-4"
+    model_name: "google/gemini-3-pro-preview"
     temperature: 0.7
     reasoning:
-      effort: "medium"
-      exclude: false
+      enabled: true
   - nickname: "Bob"
-    model_name: "anthropic/claude-3-opus"
+    model_name: "openai/gpt-5.2"
     temperature: 0.7
+    reasoning:
+      enabled: true
   - nickname: "Charlie"
-    model_name: "google/gemini-pro"
+    model_name: "anthropic/claude-opus-4.5"
     temperature: 0.7
+    reasoning:
+      enabled: true
   - nickname: "David"
-    model_name: "mistralai/mistral-large"
+    model_name: "moonshotai/kimi-k2-thinking"
     temperature: 0.7
+    reasoning:
+      enabled: true
 
 locations:
   - "Airplane"
