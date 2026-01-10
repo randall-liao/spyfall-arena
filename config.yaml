@@ -3,21 +3,21 @@
 game:
   num_rounds: 3
   max_turns_per_round: 20
-  random_seed: 42
+  random_seed: 122
 
 players:
   - nickname: "Alice"
-    model_name: "openai/gpt-4"
-    temperature: 0.7
+    model_name: "x-ai/grok-4.1-fast:free"
+    temperature: 0.9
   - nickname: "Bob"
-    model_name: "anthropic/claude-3-opus"
-    temperature: 0.7
+    model_name: "x-ai/grok-4.1-fast:free"
+    temperature: 0.9
   - nickname: "Charlie"
-    model_name: "google/gemini-pro"
-    temperature: 0.7
+    model_name: "x-ai/grok-4.1-fast:free"
+    temperature: 0.9
   - nickname: "David"
-    model_name: "mistralai/mistral-large"
-    temperature: 0.7
+    model_name: "x-ai/grok-4.1-fast:free"
+    temperature: 0.9
 
 locations:
   - "Airplane"
@@ -55,5 +55,5 @@ prompts:
 
 logging:
   output_dir: "logs"
-  save_full_prompts: false
+  save_full_prompts: true
   log_level: "INFO"

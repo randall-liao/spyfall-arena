@@ -1,12 +1,14 @@
 from config.api_key_manager import ApiKeyManager
+from config.config_schema import LLMProvider
 from llm.base_client import BaseLLMClient
 from llm.llm_client_factory import LLMClientFactory
 
 api_key_manager: ApiKeyManager = ApiKeyManager()
 client_factory: LLMClientFactory = LLMClientFactory(api_key_manager)
 open_router_client: BaseLLMClient = client_factory.create_client(
-    model_name="google/gemma-3-27b-it",
-    temperature=0.7,
+    model_name="x-ai/grok-4.1-fast:free",
+    provider=LLMProvider.OPEN_ROUTER,
+    temperature=0.9,
 )
 
 
