@@ -3,7 +3,6 @@ from unittest.mock import MagicMock
 import pytest
 
 from config.config_schema import GameConfig, PlayerConfig
-from game.game_state import Role
 from game.spy_guess_manager import SpyGuessManager
 from llm.llm_client_factory import LLMClientFactory
 from prompts.prompt_builder import PromptBuilder

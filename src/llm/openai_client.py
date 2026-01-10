@@ -10,7 +10,6 @@ from llm.exceptions import MaxRetriesExceededError
 logger = logging.getLogger(__name__)
 
 
-
 if TYPE_CHECKING:
     from llm.rate_limiter import TokenBucketLimiter
 

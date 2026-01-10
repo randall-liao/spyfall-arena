@@ -1,7 +1,7 @@
 from typing import List, Optional
 from enum import Enum
 
-from pydantic import BaseModel, Field, conint, constr, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class LLMProvider(str, Enum):
@@ -15,6 +15,7 @@ class ReasoningConfig(BaseModel):
     See PRD Section 4.2 (LLM Player Management) - supports extended
     reasoning for models that offer thinking/reasoning tokens.
     """
+
     effort: Optional[str] = None
     max_tokens: Optional[int] = None
     exclude: Optional[bool] = None

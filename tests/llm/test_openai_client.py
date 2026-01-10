@@ -89,11 +89,11 @@ def test_llm_client_factory():
     mock_api_key_manager = MagicMock()
     mock_api_key_manager.get_api_key.return_value = "test-key"
     factory = LLMClientFactory(mock_api_key_manager)
-    client = factory.create_client(model_name="test-model", provider=LLMProvider.OPEN_ROUTER)
+    client = factory.create_client(
+        model_name="test-model", provider=LLMProvider.OPEN_ROUTER
+    )
     assert isinstance(client, OpenAIClient)
     assert client.model_name == "test-model"
-
-
 
 
 def test_openai_max_retries_exceeded():

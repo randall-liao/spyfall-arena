@@ -31,7 +31,10 @@ class TestLLMClientFactory(unittest.TestCase):
         reasoning_config = {"effort": "high"}
 
         client = self.factory.create_client(
-            model_name="gpt-4", provider=LLMProvider.OPEN_ROUTER, temperature=0.5, reasoning_config=reasoning_config
+            model_name="gpt-4",
+            provider=LLMProvider.OPEN_ROUTER,
+            temperature=0.5,
+            reasoning_config=reasoning_config,
         )
 
         self.assertIsInstance(client, OpenAIClient)
@@ -71,7 +74,9 @@ class TestLLMClientFactory(unittest.TestCase):
         self.mock_api_key_manager.get_google_api_key.return_value = "AIza-google-key"
 
         client = self.factory.create_client(
-            model_name="models/gemma-3-27b", provider=LLMProvider.GOOGLE_AI_STUDIO, temperature=0.9
+            model_name="models/gemma-3-27b",
+            provider=LLMProvider.GOOGLE_AI_STUDIO,
+            temperature=0.9,
         )
 
         self.assertIsInstance(client, GeminiClient)
@@ -95,6 +100,5 @@ class TestLLMClientFactory(unittest.TestCase):
             self.factory.create_client(
                 model_name="gpt-4",
                 provider="UNKNOWN_PROVIDER",  # type: ignore
-                temperature=0.5
+                temperature=0.5,
             )
-

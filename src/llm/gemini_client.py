@@ -3,7 +3,6 @@ from typing import Any, Dict, Optional, cast, TYPE_CHECKING
 from tenacity import (
     stop_after_attempt,
     retry_if_exception,
-    retry,
     RetryCallState,
     before_sleep_log,
     Retrying,
@@ -31,7 +30,7 @@ def wait_from_google_retry_info(retry_state: "RetryCallState") -> float:
         return default_wait
 
     exc = retry_state.outcome.exception()
-    
+
     # Check for details in the exception (common in Google RPC errors)
     details = getattr(exc, "details", [])
     if isinstance(details, dict):
@@ -167,9 +166,13 @@ class GeminiClient(BaseLLMClient):
         exp_wait = wait_exponential(min=self.retry_min_wait, max=self.retry_max_wait)
         return exp_wait(retry_state)
 
-    def _try_get_google_retry_delay(self, retry_state: "RetryCallState") -> Optional[float]:
+    def _try_get_google_retry_delay(
+        self, retry_state: "RetryCallState"
+    ) -> Optional[float]:
         """Return exponential backoff wait time using configured min/max bounds."""
-        return wait_exponential(min=self.retry_min_wait, max=self.retry_max_wait)(retry_state)
+        return wait_exponential(min=self.retry_min_wait, max=self.retry_max_wait)(
+            retry_state
+        )
 
     def _make_api_call(
         self, messages: list, temperature: float, response_format: Optional[dict] = None
@@ -177,7 +180,7 @@ class GeminiClient(BaseLLMClient):
         """Make API call with tenacity retry wrapper for 429 errors."""
         retryer = Retrying(
             stop=stop_after_attempt(self.max_retries + 1),
-            wait=self._wait_strategy, 
+            wait=self._wait_strategy,
             retry=retry_if_exception(
                 lambda e: "429" in str(e) or getattr(e, "code", 0) == 429
             ),
@@ -186,10 +189,10 @@ class GeminiClient(BaseLLMClient):
             reraise=True,
         )
         return retryer(
-            self._make_api_call_impl, 
-            messages=messages, 
-            temperature=temperature, 
-            response_format=response_format
+            self._make_api_call_impl,
+            messages=messages,
+            temperature=temperature,
+            response_format=response_format,
         )
 
     def _make_api_call_impl(

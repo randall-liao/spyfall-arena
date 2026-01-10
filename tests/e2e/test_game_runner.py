@@ -4,15 +4,11 @@ import sys
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-# Set up logging to capture output from the game runner
-logging.basicConfig(level=logging.INFO)
-
-# Add the project root to the Python path to allow importing game_runner
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
-
 import game_runner
 from config.api_key_manager import ApiKeyManager
+
+# Set up logging to capture output from the game runner
+logging.basicConfig(level=logging.INFO)
 
 
 @patch("config.api_key_manager.keyring.get_password", return_value="fake_key")

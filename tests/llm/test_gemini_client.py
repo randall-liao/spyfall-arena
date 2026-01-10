@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import MagicMock, patch
 
 
 from tenacity import RetryCallState
@@ -284,9 +284,7 @@ class TestGeminiClient(unittest.TestCase):
         mock_retry_state.outcome = mock_outcome
 
         # Expected: 5.5s + 3.0s buffer = 8.5s
-        self.assertEqual(
-            wait_time := wait_from_google_retry_info(mock_retry_state), 8.5
-        )
+        self.assertEqual(wait_from_google_retry_info(mock_retry_state), 8.5)
 
     def test_wait_from_google_retry_info_protobuf_error(self):
         mock_retry_state = MagicMock(spec=RetryCallState)

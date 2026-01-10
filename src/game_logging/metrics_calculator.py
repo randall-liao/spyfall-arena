@@ -1,11 +1,12 @@
-
 from dataclasses import dataclass
 from typing import Optional
 from game.game_state import RoundState, GameState
 
+
 @dataclass
 class RoundMetrics:
     """Per-round metrics per PRD Section 6 (Evaluation and Metrics MVP)."""
+
     winner_side: str  # "spy" or "civilians"
     spy_caught: bool
     spy_guessed_correctly: bool
@@ -14,13 +15,16 @@ class RoundMetrics:
     avg_question_length: float
     avg_answer_length: float
 
+
 @dataclass
 class GameMetrics:
     """Aggregate game metrics for multi-round analysis."""
+
     spy_wins: int
     civilian_wins: int
     avg_turns_per_round: float
     overall_winner: str
+
 
 def calculate_round_metrics(round_state: RoundState) -> RoundMetrics:
     """Compute win condition, vote accuracy, and response stats for a round."""
@@ -52,25 +56,29 @@ def calculate_round_metrics(round_state: RoundState) -> RoundMetrics:
     # Calculate vote accuracy
     vote_accuracy: Optional[float] = None
     successful_vote = next((v for v in round_state.votes if v.passed), None)
-    
+
     if successful_vote:
         # Identify civilians
-        civilians = [p for p in round_state.role_assignments if p != round_state.spy_nickname]
+        civilians = [
+            p for p in round_state.role_assignments if p != round_state.spy_nickname
+        ]
         total_civilians = len(civilians)
-        
+
         if total_civilians > 0:
             # Count civilians who voted YES
             civilians_voted_yes = 0
             for civ in civilians:
                 if successful_vote.votes.get(civ, False):
                     civilians_voted_yes += 1
-            vote_accuracy = civilians_voted_yes / total_civilians if total_civilians > 0 else 0.0
+            vote_accuracy = (
+                civilians_voted_yes / total_civilians if total_civilians > 0 else 0.0
+            )
 
     # Calculate response statistics
     total_turns = len(round_state.conversation_history)
     avg_question_length = 0.0
     avg_answer_length = 0.0
-    
+
     if total_turns > 0:
         total_q_len = sum(len(t.question) for t in round_state.conversation_history)
         total_a_len = sum(len(t.answer) for t in round_state.conversation_history)
@@ -84,8 +92,9 @@ def calculate_round_metrics(round_state: RoundState) -> RoundMetrics:
         total_turns=total_turns,
         vote_accuracy=vote_accuracy,
         avg_question_length=avg_question_length,
-        avg_answer_length=avg_answer_length
+        avg_answer_length=avg_answer_length,
     )
+
 
 def calculate_game_metrics(game_state: GameState) -> GameMetrics:
     """Aggregate round metrics into overall game statistics."""
@@ -93,16 +102,16 @@ def calculate_game_metrics(game_state: GameState) -> GameMetrics:
     civilian_wins = 0
     total_turns = 0
     num_rounds = len(game_state.rounds_data)
-    
+
     for round_state in game_state.rounds_data:
         # Reuse calculate_round_metrics to determine the winner based on state
         round_metrics = calculate_round_metrics(round_state)
-        
+
         if round_metrics.winner_side == "spy":
             spy_wins += 1
         elif round_metrics.winner_side == "civilians":
             civilian_wins += 1
-            
+
         total_turns += round_metrics.total_turns
 
     avg_turns_per_round = total_turns / num_rounds if num_rounds > 0 else 0.0
@@ -112,8 +121,7 @@ def calculate_game_metrics(game_state: GameState) -> GameMetrics:
     if game_state.player_scores:
         # Sort by score (descending), then name (ascending)
         sorted_players = sorted(
-            game_state.player_scores.items(),
-            key=lambda item: (-item[1], item[0])
+            game_state.player_scores.items(), key=lambda item: (-item[1], item[0])
         )
         if sorted_players:
             overall_winner = sorted_players[0][0]
@@ -122,5 +130,5 @@ def calculate_game_metrics(game_state: GameState) -> GameMetrics:
         spy_wins=spy_wins,
         civilian_wins=civilian_wins,
         avg_turns_per_round=avg_turns_per_round,
-        overall_winner=overall_winner
+        overall_winner=overall_winner,
     )

@@ -1,9 +1,9 @@
-import json
 from typing import Dict, List, Optional
 
 from loguru import logger
 from pydantic import BaseModel, ValidationError
 
+from config.config_schema import GameConfig
 from game.game_state import Role, Turn
 from llm.llm_client_factory import LLMClientFactory
 from prompts.prompt_builder import PromptBuilder
@@ -16,9 +16,6 @@ class QuestionResponse(BaseModel):
 
 class AnswerResponse(BaseModel):
     answer: str
-
-
-from config.config_schema import GameConfig
 
 
 class TurnManager:
@@ -106,7 +103,9 @@ class TurnManager:
             p for p in self.config.players if p.nickname == target_nickname
         )
         answerer_reasoning = (
-            answerer_config.reasoning.model_dump() if answerer_config.reasoning else None
+            answerer_config.reasoning.model_dump()
+            if answerer_config.reasoning
+            else None
         )
         answerer_llm_client = self.llm_factory.create_client(
             model_name=answerer_config.model_name,

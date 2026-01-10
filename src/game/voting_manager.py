@@ -3,6 +3,7 @@ from typing import Dict, List, Optional, Set
 from loguru import logger
 from pydantic import BaseModel, ValidationError
 
+from config.config_schema import GameConfig
 from game.game_state import Role, VoteAttempt
 from llm.llm_client_factory import LLMClientFactory
 from prompts.prompt_builder import PromptBuilder
@@ -17,11 +18,8 @@ class VoteDecisionResponse(BaseModel):
     vote_yes: bool
 
 
-from config.config_schema import GameConfig
-
-
 class VotingManager:
-    """Manages voting per PRD Section 4 and game-rules.md.  
+    """Manages voting per PRD Section 4 and game-rules.md.
 
     Each player may initiate one vote per round. Vote must be unanimous
     to indict. If passed, round ends immediately.
@@ -105,7 +103,9 @@ class VotingManager:
                 p for p in self.config.players if p.nickname == nickname
             )
             reasoning = (
-                player_config.reasoning.model_dump() if player_config.reasoning else None
+                player_config.reasoning.model_dump()
+                if player_config.reasoning
+                else None
             )
             llm_client = self.llm_factory.create_client(
                 model_name=player_config.model_name,
