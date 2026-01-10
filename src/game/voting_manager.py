@@ -3,6 +3,7 @@ from typing import Dict, List, Optional, Set
 from loguru import logger
 from pydantic import BaseModel, ValidationError
 
+from config.config_schema import GameConfig
 from game.game_state import Role, VoteAttempt
 from llm.llm_client_factory import LLMClientFactory
 from prompts.prompt_builder import PromptBuilder
@@ -15,9 +16,6 @@ class VoteInitiationResponse(BaseModel):
 
 class VoteDecisionResponse(BaseModel):
     vote_yes: bool
-
-
-from config.config_schema import GameConfig
 
 
 class VotingManager:

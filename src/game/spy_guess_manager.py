@@ -3,6 +3,7 @@ from typing import List, Optional
 from loguru import logger
 from pydantic import BaseModel, ValidationError
 
+from config.config_schema import GameConfig
 from game.game_state import Role, SpyGuess
 from llm.llm_client_factory import LLMClientFactory
 from prompts.prompt_builder import PromptBuilder
@@ -11,9 +12,6 @@ from prompts.prompt_builder import PromptBuilder
 class SpyGuessResponse(BaseModel):
     make_guess: bool
     location_guess: Optional[str] = None
-
-
-from config.config_schema import GameConfig
 
 
 class SpyGuessManager:

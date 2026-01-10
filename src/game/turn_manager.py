@@ -3,6 +3,7 @@ from typing import Dict, List, Optional
 from loguru import logger
 from pydantic import BaseModel, ValidationError
 
+from config.config_schema import GameConfig
 from game.game_state import Role, Turn
 from llm.llm_client_factory import LLMClientFactory
 from prompts.prompt_builder import PromptBuilder
@@ -15,9 +16,6 @@ class QuestionResponse(BaseModel):
 
 class AnswerResponse(BaseModel):
     answer: str
-
-
-from config.config_schema import GameConfig
 
 
 class TurnManager:
