@@ -9,6 +9,7 @@ from loguru import logger
 from config.config_schema import GameConfig, GameRulesConfig, LoggingConfig, PlayerConfig
 from game.game_state import GamePhase, GameState, RoundPhase, RoundState
 from game_logging.game_logger import GameLogger
+from game_logging.metrics_calculator import GameMetrics, RoundMetrics
 
 
 @pytest.fixture
@@ -102,3 +103,61 @@ def test_loguru_setup(mock_config: GameConfig):
         args, kwargs = mock_logger_add.call_args
         assert args[0] == Path(mock_config.logging.output_dir) / "game_execution.log"
         assert kwargs["level"] == "INFO"
+
+def test_metrics_integration_in_log(
+    mock_config: GameConfig, mock_game_state: GameState, tmp_path: Path
+):
+    """Tests that metrics are calculated and included in the log."""
+    mock_config.logging.output_dir = str(tmp_path)
+    logger_instance = GameLogger(config=mock_config)
+    
+    # Needs to ensure Mocks in mock_game_state have enough data for metrics calculator
+    # The fixture mock_game_state has MagicMocks which might fail when attributes are accessed
+    
+    # Let's inspect mock_game_state fixture usage.
+    # It creates a RoundState with mocked role assignments.
+    # We might need to make it more concrete for metrics calculator to not crash or just mock the calculator methods.
+    
+    # However, this test is an integration test for GameLogger using real MetricsCalculator?
+    # Or should we mock MetricsCalculator?
+    # The task says "Integrate metrics into GameLogger".
+    
+    # If we want to test that GameLogger CALLS metrics calculator and puts result in JSON:
+    with patch("game_logging.game_logger.calculate_game_metrics") as mock_calc_game, \
+         patch("game_logging.game_logger.calculate_round_metrics") as mock_calc_round, \
+         patch("builtins.open", mock_open()), \
+         patch("json.dump") as mock_json_dump:
+         
+        # Return real dataclasses so asdict() works
+        mock_game_metrics = GameMetrics(
+            spy_wins=1, 
+            civilian_wins=0, 
+            avg_turns_per_round=10.0, 
+            overall_winner="Alice"
+        )
+        mock_calc_game.return_value = mock_game_metrics
+        
+        mock_round_metrics = RoundMetrics(
+            winner_side="spy",
+            spy_caught=False,
+            spy_guessed_correctly=True,
+            total_turns=10,
+            vote_accuracy=None,
+            avg_question_length=5.0,
+            avg_answer_length=5.0
+        )
+        mock_calc_round.return_value = mock_round_metrics
+        
+        logger_instance.write_final_log(game_state=mock_game_state)
+        
+        args, _ = mock_json_dump.call_args
+        written_data = args[0]
+        
+        assert "game_metrics" in written_data
+        assert written_data["game_metrics"]["spy_wins"] == 1
+        
+        assert "metrics" in written_data["rounds"][0]
+        assert written_data["rounds"][0]["metrics"]["winner_side"] == "spy"
+        
+        mock_calc_game.assert_called_once()
+        mock_calc_round.assert_called()
