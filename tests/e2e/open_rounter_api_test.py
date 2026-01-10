@@ -6,6 +6,7 @@ client and API key functionality. These tests should not be run in CI/CD environ
 """
 
 from config.api_key_manager import ApiKeyManager
+from config.config_schema import LLMProvider
 from llm.base_client import BaseLLMClient
 from llm.llm_client_factory import LLMClientFactory
 
@@ -13,6 +14,7 @@ api_key_manager: ApiKeyManager = ApiKeyManager()
 client_factory: LLMClientFactory = LLMClientFactory(api_key_manager)
 open_router_client: BaseLLMClient = client_factory.create_client(
     model_name="xiaomi/mimo-v2-flash:free",
+    provider=LLMProvider.OPEN_ROUTER,
     temperature=0.7,
     reasoning_config={
         "enabled": True,

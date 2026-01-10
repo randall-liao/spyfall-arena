@@ -13,15 +13,19 @@ rate_limit:
 players:
   - nickname: "Alice"
     model_name: "models/gemma-3-27b-it"
+    provider: "GOOGLE_AI_STUDIO"
     temperature: 0.7
   - nickname: "Bob"
     model_name: "models/gemma-3-27b-it"
+    provider: "GOOGLE_AI_STUDIO"
     temperature: 0.7
   - nickname: "Charlie"
     model_name: "models/gemma-3-27b-it"
+    provider: "GOOGLE_AI_STUDIO"
     temperature: 0.7
   - nickname: "David"
     model_name: "models/gemma-3-27b-it"
+    provider: "GOOGLE_AI_STUDIO"
     temperature: 0.7
 
 locations:
@@ -60,5 +64,5 @@ prompts:
 
 logging:
   output_dir: "logs"
-  save_full_prompts: false
+  save_full_prompts: true
   log_level: "INFO"

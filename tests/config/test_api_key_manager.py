@@ -92,13 +92,6 @@ class TestApiKeyManager(unittest.TestCase):
 
         self.assertIn("OpenRouter API key not found", str(context.exception))
 
-        # Check for the expected warning logs - COMMENTED OUT due to NameError (missing mock_logger)
-        # warnings = [call.args[0] for call in mock_logger.warning.call_args_list]
-        # self.assertTrue(any("Could not access system keyring" in w for w in warnings))
-        # self.assertTrue(
-        #     any("Loading API key from `apikeys.yaml`" in w for w in warnings)
-        # )
-
     def test_get_google_api_key_not_found(self):
         """Test when Google API key is not found."""
         with patch("config.api_key_manager.keyring.get_password", return_value=None):
