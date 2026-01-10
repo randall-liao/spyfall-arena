@@ -1,0 +1,72 @@
+# Example configuration for a game of Spyfall Arena
+
+game:
+  num_rounds: 3
+  max_turns_per_round: 20
+  random_seed: 236
+
+rate_limit:
+  enabled: true
+  requests_per_minute: 10
+  burst_limit: 2
+
+players:
+  - nickname: "Alice"
+    model_name: "google/gemini-3-pro-preview"
+    temperature: 0.7
+    reasoning:
+      enabled: true
+  - nickname: "Bob"
+    model_name: "openai/gpt-5.2"
+    temperature: 0.7
+    reasoning:
+      enabled: true
+  - nickname: "Charlie"
+    model_name: "anthropic/claude-opus-4.5"
+    temperature: 0.7
+    reasoning:
+      enabled: true
+  - nickname: "David"
+    model_name: "moonshotai/kimi-k2-thinking"
+    temperature: 0.7
+    reasoning:
+      enabled: true
+
+locations:
+  - "Airplane"
+  - "Bank"
+  - "Beach"
+  - "Casino"
+  - "Circus Tent"
+  - "Corporate Party"
+  - "Crusader Army"
+  - "Day Spa"
+  - "Embassy"
+  - "Hospital"
+  - "Hotel"
+  - "Military Base"
+  - "Movie Studio"
+  - "Ocean Liner"
+  - "Passenger Train"
+  - "Pirate Ship"
+  - "Polar Station"
+  - "Police Station"
+  - "Restaurant"
+  - "School"
+  - "Service Station"
+  - "Space Station"
+  - "Submarine"
+  - "Supermarket"
+  - "Theater"
+  - "University"
+  - "World War II Squad"
+
+prompts:
+  system_prompt_template: "src/prompts/templates/system_prompt.txt"
+  civilian_role_template: "src/prompts/templates/civilian_role.txt"
+  spy_role_template: "src/prompts/templates/spy_role.txt"
+
+logging:
+  output_dir: "logs"
+  save_full_prompts: false
+  log_level: "INFO"

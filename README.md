@@ -37,6 +37,12 @@ It aims to evaluate how different LLMs perform in reasoning, deception, and dedu
     poetry install
     ```
 
+3.  **Install Git Hooks (Security):**
+    ```bash
+    ./scripts/setup-git-hooks.sh
+    ```
+    This configures Gitleaks to automatically scan your commits for secrets.
+
 ### 3. API Key Configuration
 
 This project supports LLM providers via API keys.
@@ -58,6 +64,41 @@ The most secure way to store your API keys is using your system's credential man
     keyring set spyfall-arena google_api_key
     ```
     When prompted, paste your Google API key.
+
+#### Important Note for WSL Users
+
+If you are running this project in **WSL (Windows Subsystem for Linux)**, the system keyring (e.g., Gnome Keyring) is not enabled by default. To use the secure credential manager:
+
+1.  **Run the Setup Script:**
+    We provide a helper script to install dependencies (`gnome-keyring`, `dbus-x11`) and check your environment.
+    ```bash
+    # Run once to install dependencies
+    chmod +x scripts/setup_wsl_keyring.sh
+    ./scripts/setup_wsl_keyring.sh
+    ```
+
+2.  **Configure Your Shell:**
+    You must initialize the D-Bus session and unlock the keyring in your shell session. Add the following to your `~/.bashrc` (or run manually before using the app):
+
+    ```bash
+    # Set Runtime Directory
+    export XDG_RUNTIME_DIR=/run/user/$(id -u)
+    if [ ! -d "$XDG_RUNTIME_DIR" ]; then
+        sudo mkdir -p "$XDG_RUNTIME_DIR"
+        sudo chown $(id -u):$(id -g) "$XDG_RUNTIME_DIR"
+        chmod 700 "$XDG_RUNTIME_DIR"
+    fi
+
+    # Start DBus Session
+    if [ -z "$DBUS_SESSION_BUS_ADDRESS" ]; then
+        eval $(dbus-launch --sh-syntax)
+    fi
+
+    # Unlock Keyring (Requires your WSL password 'devuser', or whatever you set)
+    # Note: echo works for simple unlock, but interactive unlock is safer if available
+    echo -n "devuser" | gnome-keyring-daemon --unlock
+    ```
+    *Replace `"devuser"` with your actual WSL password if different.*
 
 3.  **Verify the keys:**
     ```bash
@@ -99,6 +140,26 @@ llm:
   temperature: 0.7
 ```
 
+#### OpenRouter Reasoning Tokens
+
+For models that support "Reasoning Tokens" (thinking tokens) via OpenRouter (e.g., OpenAI o1/o3, Anthropic Claude 3.7 Sonnet), you can configure reasoning parameters in the player configuration.
+
+```yaml
+players:
+  - nickname: "Alice"
+    model_name: "openai/o3-mini"
+    temperature: 0.7
+    reasoning:
+      effort: "medium"   # high, medium, low, etc.
+      exclude: false     # Set to true to hide reasoning from output
+```
+
+Supported fields:
+- `effort`: Controls reasoning depth (`high`, `medium`, `low`, etc.).
+- `max_tokens`: Sets a hard limit on reasoning tokens.
+- `exclude`: If `true`, reasoning tokens are generated but not returned in the response.
+- `enabled`: Explicitly enable reasoning (often inferred from other fields).
+
 ### 5. Running the Application
 
 To run a game, you need to provide a configuration file.
@@ -126,6 +187,12 @@ poetry run pytest
 ```
 
 ---
+
+## 🔐 Security
+
+*   **Pre-commit Hooks:** Gitleaks is configured to scan all commits locally.
+*   **CI/CD:** GitHub Actions verifies that no secrets are present in pushes and pull requests.
+*   **Configuration:** The `.gitleaks.toml` file in the root directory controls the scanning rules.
 
 ## 🚀 Project Phases
 

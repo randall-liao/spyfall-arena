@@ -1,9 +1,39 @@
 import json
-from typing import Any, Dict, Optional, cast
+import logging
+from typing import TYPE_CHECKING, Any, Dict, Optional, cast
 
-from openai import OpenAI
+from openai import APIConnectionError, OpenAI, RateLimitError
+from tenacity import (
+    RetryCallState,
+    before_sleep_log,
+    retry,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_exponential,
+)
 
 from llm.base_client import BaseLLMClient
+from llm.exceptions import MaxRetriesExceededError
+
+logger = logging.getLogger(__name__)
+
+
+def on_retry_error(retry_state: "RetryCallState"):
+    """Callback for when retries are exhausted."""
+    if retry_state.outcome is None:
+        raise RuntimeError("Retry outcome is None")
+
+    exc = retry_state.outcome.exception()
+    attempts = retry_state.attempt_number
+    logger.error(f"Max retries ({attempts}) exceeded. Final error: {exc}")
+
+    if isinstance(exc, Exception):
+        raise MaxRetriesExceededError(exc, attempts) from exc
+    raise MaxRetriesExceededError(Exception(f"Unknown error: {exc}"), attempts)
+
+
+if TYPE_CHECKING:
+    from llm.rate_limiter import TokenBucketLimiter
 
 
 class OpenAIClient(BaseLLMClient):
@@ -14,12 +44,16 @@ class OpenAIClient(BaseLLMClient):
         model_name: str,
         api_key: str,
         temperature: float = 0.7,
+        rate_limiter: Optional["TokenBucketLimiter"] = None,
+        reasoning_config: Optional[Dict[str, Any]] = None,
     ):
         self.api_key = api_key
         self.client = OpenAI(
             base_url="https://openrouter.ai/api/v1",
             api_key=api_key,
         )
+        self.rate_limiter = rate_limiter
+        self.reasoning_config = reasoning_config
         super().__init__(model_name, temperature)
 
     def _validate_config(self) -> None:
@@ -29,15 +63,33 @@ class OpenAIClient(BaseLLMClient):
         if not self.model_name:
             raise ValueError("A model name is required.")
 
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=4, min=4, max=60),
+        retry=retry_if_exception_type((RateLimitError, APIConnectionError)),
+        before_sleep=before_sleep_log(logger, logging.WARNING),
+        retry_error_callback=on_retry_error,
+        reraise=True,
+    )
     def _make_api_call(
         self, messages: list, temperature: float, response_format: Optional[dict] = None
     ) -> Dict[str, Any]:
         """Makes an API call to OpenRouter using the OpenAI SDK."""
+        extra_body = {}
+        if self.reasoning_config:
+            # Filter out None values
+            reasoning = {
+                k: v for k, v in self.reasoning_config.items() if v is not None
+            }
+            if reasoning:
+                extra_body["reasoning"] = reasoning
+
         completion = self.client.chat.completions.create(
             model=self.model_name,
             messages=messages,
             temperature=temperature,
             response_format=cast(Any, response_format),
+            extra_body=extra_body if extra_body else None,
         )
         return cast(Dict[str, Any], completion.dict())
 

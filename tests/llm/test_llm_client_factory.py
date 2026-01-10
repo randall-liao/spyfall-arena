@@ -26,6 +26,18 @@ class TestLLMClientFactory(unittest.TestCase):
         self.mock_api_key_manager.get_api_key.assert_called_once()
         self.mock_api_key_manager.get_google_api_key.assert_not_called()
 
+    def test_create_openai_client_with_reasoning(self):
+        self.mock_api_key_manager.get_api_key.return_value = "sk-openai-key"
+        reasoning_config = {"effort": "high"}
+
+        client = self.factory.create_client(
+            model_name="gpt-4", provider=LLMProvider.OPEN_ROUTER, temperature=0.5, reasoning_config=reasoning_config
+        )
+
+        self.assertIsInstance(client, OpenAIClient)
+        self.assertEqual(client.reasoning_config, reasoning_config)
+        self.mock_api_key_manager.get_api_key.assert_called_once()
+
     @patch("llm.gemini_client.genai.Client")
     def test_create_gemini_client(self, mock_genai_client):
         self.mock_api_key_manager.get_google_api_key.return_value = "AIza-google-key"
@@ -53,3 +65,16 @@ class TestLLMClientFactory(unittest.TestCase):
         )
 
         self.assertIsInstance(client, GeminiClient)
+
+    @patch("llm.gemini_client.genai.Client")
+    def test_create_gemma_client(self, mock_genai_client):
+        self.mock_api_key_manager.get_google_api_key.return_value = "AIza-google-key"
+
+        client = self.factory.create_client(
+            model_name="models/gemma-3-27b", provider=LLMProvider.GOOGLE_AI_STUDIO, temperature=0.9
+        )
+
+        self.assertIsInstance(client, GeminiClient)
+        self.assertEqual(client.model_name, "models/gemma-3-27b")
+        self.mock_api_key_manager.get_google_api_key.assert_called_once()
+        self.mock_api_key_manager.get_api_key.assert_not_called()
