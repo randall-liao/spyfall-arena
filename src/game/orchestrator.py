@@ -16,7 +16,12 @@ from prompts.prompt_builder import PromptBuilder
 
 
 class GameOrchestrator:
-    """Orchestrates the execution of a complete game of Spyfall."""
+    """Coordinates a complete Spyfall game from setup to completion.
+
+    Implements PRD Phase 1 (Foundational Arena) - automated end-to-end
+    gameplay using LLM agents. Manages the round lifecycle: role
+    assignment, turn execution, voting, spy guessing, and scoring.
+    """
 
     def __init__(self, config: GameConfig):
         self.config = config
@@ -35,7 +40,7 @@ class GameOrchestrator:
         self.scoring_engine = ScoringEngine()
 
     def run_game(self) -> GameState:
-        """Runs a complete game of Spyfall from start to finish."""
+        """Execute all configured rounds and return final game state."""
         game_id = f"game_{uuid.uuid4().hex[:8]}"
         logger.info(f"Starting Game {game_id}")
 
@@ -66,7 +71,7 @@ class GameOrchestrator:
     def run_round(
         self, round_number: int, player_nicknames: List[str], locations: List[str]
     ) -> RoundState:
-        """Runs a single round of Spyfall."""
+        """Execute a single round: roles, turns, voting/guessing, scoring."""
         roles, location = self.role_assigner.assign_roles(player_nicknames, locations)
         spy_nickname = next(p for p, r in roles.items() if r.is_spy)
 

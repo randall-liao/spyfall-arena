@@ -16,7 +16,11 @@ if TYPE_CHECKING:
 
 
 class OpenAIClient(BaseLLMClient):
-    """A client for interacting with the OpenRouter API using the OpenAI SDK."""
+    """OpenRouter API client using the OpenAI SDK.
+
+    Implements PRD Section 4.2 (LLM Player Management). Uses OpenAI SDK's
+    built-in retry mechanism for rate limit errors.
+    """
 
     def __init__(
         self,

@@ -7,7 +7,7 @@ from loguru import logger
 
 
 class GamePhase(Enum):
-    """Game-level states"""
+    """Top-level game lifecycle states."""
 
     INITIALIZING = "initializing"
     IN_PROGRESS = "in_progress"
@@ -16,7 +16,7 @@ class GamePhase(Enum):
 
 
 class RoundPhase(Enum):
-    """Round-level states"""
+    """States within a single round (maps to PRD Section 3-4 flow)."""
 
     ROLE_ASSIGNMENT = "role_assignment"
     QUESTIONING = "questioning"
@@ -87,7 +87,7 @@ class RoundState:
     players_who_voted: Set[str] = field(default_factory=set)
 
     def transition_to(self, new_phase: RoundPhase) -> bool:
-        """Validates and executes state transition"""
+        """Attempt phase transition; return True if valid."""
         if self._is_valid_transition(self.phase, new_phase):
             logger.info(
                 f"Round State transition: {self.phase.value} -> {new_phase.value}"
@@ -102,7 +102,7 @@ class RoundState:
     def _is_valid_transition(
         self, from_phase: RoundPhase, to_phase: RoundPhase
     ) -> bool:
-        """Defines valid state transitions"""
+        """Check if transition is in allowed state machine graph."""
         valid_transitions = {
             RoundPhase.ROLE_ASSIGNMENT: [RoundPhase.QUESTIONING],
             RoundPhase.QUESTIONING: [
@@ -128,7 +128,7 @@ class GameState:
     errors: List[GameError] = field(default_factory=list)
 
     def transition_to(self, new_phase: GamePhase) -> bool:
-        """Validates and executes state transition"""
+        """Attempt phase transition; return True if valid."""
         if self._is_valid_transition(self.phase, new_phase):
             logger.info(
                 f"Game State transition: {self.phase.value} -> {new_phase.value}"
@@ -141,7 +141,7 @@ class GameState:
         return False
 
     def _is_valid_transition(self, from_phase: GamePhase, to_phase: GamePhase) -> bool:
-        """Defines valid state transitions"""
+        """Check if transition is in allowed state machine graph."""
         valid_transitions = {
             GamePhase.INITIALIZING: [GamePhase.IN_PROGRESS, GamePhase.ERROR],
             GamePhase.IN_PROGRESS: [GamePhase.COMPLETED, GamePhase.ERROR],

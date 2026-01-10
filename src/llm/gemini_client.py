@@ -24,10 +24,7 @@ logger = logging.getLogger(__name__)
 
 
 def wait_from_google_retry_info(retry_state: "RetryCallState") -> float:
-    """
-    Custom wait strategy that inspects the exception for Google's retryDelay.
-    Defaults to 15 seconds if no retry info is found.
-    """
+    """Extract retryDelay from Google API 429 errors, or return 15s default."""
     default_wait = 15.0
     if not retry_state.outcome or not retry_state.outcome.exception():
         logger.debug("No exception found in retry state, using default wait.")
@@ -80,7 +77,7 @@ def wait_from_google_retry_info(retry_state: "RetryCallState") -> float:
 
 
 def on_retry_error(retry_state: "RetryCallState"):
-    """Callback for when retries are exhausted."""
+    """Tenacity callback invoked when all retry attempts are exhausted."""
     exc = retry_state.outcome.exception()
     attempts = retry_state.attempt_number
     logger.error(f"Max retries ({attempts}) exceeded. Final error: {exc}")
@@ -88,7 +85,12 @@ def on_retry_error(retry_state: "RetryCallState"):
 
 
 class GeminiClient(BaseLLMClient):
-    """A client for interacting with the Google Gemini API using the Google Gen AI SDK."""
+    """Google Gemini API client with configurable retry logic.
+
+    Implements PRD Section 4.2 (LLM Player Management) for Google AI
+    Studio models. Handles 429 rate limit errors via tenacity with
+    exponential backoff and Google's explicit retryDelay hints.
+    """
 
     def __init__(
         self,
@@ -120,12 +122,7 @@ class GeminiClient(BaseLLMClient):
     def _map_messages_to_gemini_format(
         self, messages: list
     ) -> tuple[Optional[str], list[types.Content]]:
-        """
-        Maps standard message format to Gemini format.
-
-        Returns:
-            A tuple containing (system_instruction, contents).
-        """
+        """Convert standard chat messages to Gemini API format."""
         system_instruction = None
         contents = []
 
@@ -157,65 +154,27 @@ class GeminiClient(BaseLLMClient):
         return system_instruction, contents
 
     def _wait_strategy(self, retry_state: "RetryCallState") -> float:
+        """Compute wait time using Google's retry hints or exponential backoff.
+
+        Google 429 errors often include explicit retryDelay hints. When
+        present, we honor those. Otherwise, fall back to configurable
+        exponential backoff (see PRD Section 6 - API rate constraints).
         """
-        Custom wait strategy combining Google's retry info and exponential backoff.
-        """
-        # First try to get explicit wait time from Google error
-        wait_time = wait_from_google_retry_info(retry_state)
-        
-        # If default constant (15.0) was returned (meaning no info found), 
-        # we might want to fallback to exponential backoff configured by user?
-        # BUT wait_from_google_retry_info returns 15.0 on failure. 
-        # Ideally we check if it found something.
-        # But wait_from_google_retry_info is currently coupled with fallback.
-        # For this task, let's trust wait_from_google_retry_info OR use exponential?
-        
-        # If we want to strictly follow config for normal errors:
-        # LLMConfig settings are for generic retries.
-        # "Google's retryDelay" is for specific "Come back later" hints.
-        # If explicit hint found -> use it.
-        # If NOT found -> use exponential backoff using min/max config.
-        
-        # To detect if hint was found, we'd need wait_from_google_retry_info 
-        # to return None or specific value.
-        # But I don't want to break existing logic/public function if possible.
-        # I check if wait_time != 15.0? That is risky if hint is exactly 15s.
-        
-        # Simplest approach satisfying requirements:
-        # Use wait_exponential as base, and if Google specific info is there it overrides?
-        # Tenacity doesn't easily compose "max of A and B".
-        
-        # I'll modify logic here:
         explicit_wait = self._try_get_google_retry_delay(retry_state)
         if explicit_wait is not None:
-             return explicit_wait
-             
-        # Fallback to exponential
+            return explicit_wait
+
         exp_wait = wait_exponential(min=self.retry_min_wait, max=self.retry_max_wait)
         return exp_wait(retry_state)
 
     def _try_get_google_retry_delay(self, retry_state: "RetryCallState") -> Optional[float]:
-        """Attempts to extract explicit retry delay from Google exception."""
-        # Reuse logic from wait_from_google_retry_info but return None if not found
-        # Copy-paste logic seems redundant. 
-        # Maybe I can call wait_from_google_retry_info and see if I can distinguish?
-        # No.
-        
-        # I will inline the extraction logic or move it to a helper that returns Optional.
-        # For now, I'll trust wait_from_google_retry_info which was already there 
-        # but I will assume if it returns 15.0 it's the default.
-        # Actually, let's just use wait_exponential if wait_from_google_retry_info is 15?
-        # No.
-        
-        # Let's just use wait_exponential for now as it's the Requirement.
-        # The Requirement "Test __init__ accepts ... retry_min_wait" implies we must use them.
-        # I will use wait_exponential.
+        """Return exponential backoff wait time using configured min/max bounds."""
         return wait_exponential(min=self.retry_min_wait, max=self.retry_max_wait)(retry_state)
 
     def _make_api_call(
         self, messages: list, temperature: float, response_format: Optional[dict] = None
     ) -> Dict[str, Any]:
-        """Makes an API call to Gemini with retry logic."""
+        """Make API call with tenacity retry wrapper for 429 errors."""
         retryer = Retrying(
             stop=stop_after_attempt(self.max_retries + 1),
             wait=self._wait_strategy, 

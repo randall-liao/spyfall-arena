@@ -5,7 +5,12 @@ from loguru import logger
 
 
 class BaseLLMClient(ABC):
-    """Abstract base class for LLM clients, using the Template Method pattern."""
+    """Abstract base class for LLM clients using Template Method pattern.
+
+    Subclasses (OpenAIClient, GeminiClient) implement provider-specific
+    API calls while sharing common orchestration logic. This supports
+    PRD Section 4.2 requirement for multiple model providers.
+    """
 
     def __init__(self, model_name: str, temperature: float = 0.7):
         self.model_name = model_name

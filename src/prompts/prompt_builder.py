@@ -8,7 +8,11 @@ from game.game_state import Role, Turn
 
 
 class PromptBuilder:
-    """Constructs prompts for the LLM agents based on templates and game state."""
+    """Constructs LLM prompts per PRD Section 4.2 (role-specific context).
+
+    Templates define personality and instructions; this class injects
+    game state (conversation history, valid targets, etc.).
+    """
 
     def __init__(self, config: GameConfig):
         self.config = config
@@ -50,7 +54,7 @@ class PromptBuilder:
 
     @staticmethod
     def _format_conversation_history(history: List[Turn]) -> str:
-        """Formats the conversation history into a readable string."""
+        """Format turn history for inclusion in prompts."""
         if not history:
             return "The conversation has not started yet."
 

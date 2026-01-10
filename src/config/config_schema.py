@@ -10,14 +10,10 @@ class LLMProvider(str, Enum):
 
 
 class ReasoningConfig(BaseModel):
-    """
-    Configuration for OpenRouter reasoning tokens (thinking tokens).
+    """OpenRouter reasoning tokens configuration.
 
-    Attributes:
-        effort: reasoning effort level (e.g. "high", "medium", "low").
-        max_tokens: maximum number of tokens to use for reasoning.
-        exclude: whether to exclude reasoning tokens from the response.
-        enabled: whether to enable reasoning (inferred if effort/max_tokens set).
+    See PRD Section 4.2 (LLM Player Management) - supports extended
+    reasoning for models that offer thinking/reasoning tokens.
     """
     effort: Optional[str] = None
     max_tokens: Optional[int] = None

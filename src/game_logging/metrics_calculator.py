@@ -5,7 +5,7 @@ from game.game_state import RoundState, GameState
 
 @dataclass
 class RoundMetrics:
-    """Metrics for a single round of Spyfall."""
+    """Per-round metrics per PRD Section 6 (Evaluation and Metrics MVP)."""
     winner_side: str  # "spy" or "civilians"
     spy_caught: bool
     spy_guessed_correctly: bool
@@ -16,22 +16,14 @@ class RoundMetrics:
 
 @dataclass
 class GameMetrics:
-    """Aggregate metrics for the entire game."""
+    """Aggregate game metrics for multi-round analysis."""
     spy_wins: int
     civilian_wins: int
     avg_turns_per_round: float
     overall_winner: str
 
 def calculate_round_metrics(round_state: RoundState) -> RoundMetrics:
-    """
-    Calculates metrics for a completed round.
-    
-    Args:
-        round_state: The state of the completed round.
-        
-    Returns:
-        RoundMetrics object containing calculated metrics.
-    """
+    """Compute win condition, vote accuracy, and response stats for a round."""
     # Initialize outcome flags
     winner_side = "spy"
     spy_caught = False
@@ -96,15 +88,7 @@ def calculate_round_metrics(round_state: RoundState) -> RoundMetrics:
     )
 
 def calculate_game_metrics(game_state: GameState) -> GameMetrics:
-    """
-    Calculates aggregate metrics for the entire game.
-    
-    Args:
-        game_state: The state of the completed game.
-        
-    Returns:
-        GameMetrics object containing calculated aggregate metrics.
-    """
+    """Aggregate round metrics into overall game statistics."""
     spy_wins = 0
     civilian_wins = 0
     total_turns = 0

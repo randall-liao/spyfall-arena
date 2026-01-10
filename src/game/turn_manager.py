@@ -22,7 +22,11 @@ from config.config_schema import GameConfig
 
 
 class TurnManager:
-    """Manages the question-and-answer flow for a single turn in Spyfall."""
+    """Manages Q&A turns per PRD Section 3 (Game Loop and Turn-Based Interaction).
+
+    Each turn: asker selects target (no retaliation), asks question,
+    target answers. Responses are collected via LLM structured output.
+    """
 
     def __init__(
         self,
@@ -42,22 +46,7 @@ class TurnManager:
         player_nicknames: List[str],
         previous_asker: Optional[str] = None,
     ) -> Turn:
-        """
-        Executes a single question-and-answer turn.
-
-        Args:
-            current_asker: The nickname of the player asking the question.
-            player_roles: A dictionary mapping player nicknames to their roles.
-            conversation_history: The history of the conversation so far.
-            player_nicknames: A list of all player nicknames.
-            previous_asker: The nickname of the player who asked the previous question.
-
-        Returns:
-            A Turn object representing the completed turn.
-
-        Raises:
-            ValueError: If the LLM provides an invalid response.
-        """
+        """Execute one Q&A exchange and return the completed Turn."""
         logger.info(f"Turn execution started. Asker: {current_asker}")
         asker_role = player_roles[current_asker]
 
@@ -147,9 +136,7 @@ class TurnManager:
         )
 
     def get_next_asker(self, current_answerer: str) -> str:
-        """
-        Determines the next asker. In Spyfall, the person who just answered becomes the next asker.
-        """
+        """The answerer becomes the next asker (Spyfall turn rule)."""
         return current_answerer
 
     def get_valid_targets(
@@ -158,9 +145,6 @@ class TurnManager:
         previous_asker: Optional[str],
         player_nicknames: List[str],
     ) -> List[str]:
-        """
-        Gets the list of valid players for the current asker to question.
-        A player cannot question themselves or the person who just questioned them.
-        """
+        """Return valid targets: cannot question self or previous asker."""
         invalid_targets = {current_asker, previous_asker}
         return [p for p in player_nicknames if p not in invalid_targets]
