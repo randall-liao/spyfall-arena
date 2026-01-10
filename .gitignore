@@ -153,3 +153,4 @@ logs
 .vscode/
 temp/
 mypy_output.txt
+keyringrc.cfg

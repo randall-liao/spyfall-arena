@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, mock_open, patch
 import pytest
 from loguru import logger
 
-from config.config_schema import GameConfig, LoggingConfig, PlayerConfig
+from config.config_schema import GameConfig, GameRulesConfig, LoggingConfig, PlayerConfig
 from game.game_state import GamePhase, GameState, RoundPhase, RoundState
 from game_logging.game_logger import GameLogger
 
@@ -15,7 +15,7 @@ from game_logging.game_logger import GameLogger
 def mock_config() -> GameConfig:
     """Returns a mock GameConfig object for testing."""
     return GameConfig(
-        game_rules=MagicMock(),
+        game=GameRulesConfig(),
         players=[
             PlayerConfig(nickname="Alice", model_name="claude-3-opus-20240229"),
             PlayerConfig(nickname="Bob", model_name="claude-3-sonnet-20240229"),

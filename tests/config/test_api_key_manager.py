@@ -54,7 +54,9 @@ class TestApiKeyManager(unittest.TestCase):
         with patch("builtins.open", unittest.mock.mock_open(read_data="")):
             with patch("yaml.safe_load", return_value=mock_yaml_data):
                 with patch("pathlib.Path.is_file", return_value=True):
-                    self.assertEqual(self.manager.get_google_api_key(), "yaml-google-key")
+                    self.assertEqual(
+                        self.manager.get_google_api_key(), "yaml-google-key"
+                    )
 
     @patch("config.api_key_manager.logger")
     @patch("keyring.get_password", side_effect=Exception("Keyring error"))
@@ -82,7 +84,7 @@ class TestApiKeyManager(unittest.TestCase):
 
     @patch("keyring.get_password", return_value=None)
     @patch("pathlib.Path.is_file", return_value=False)
-    def test_get_api_key_not_found_ensure_error(self, mock_is_file, mock_get_password):
+    def test_get_api_key_not_found_duplicate(self, mock_is_file, mock_get_password):
         """Test that a ValueError is raised when the API key is not found."""
         manager = ApiKeyManager()
         with self.assertRaises(ValueError) as context:
