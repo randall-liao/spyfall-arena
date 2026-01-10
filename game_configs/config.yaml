@@ -10,6 +10,11 @@ rate_limit:
   requests_per_minute: 10
   burst_limit: 2
 
+llm:
+  max_retries: 2
+  retry_min_wait: 1.0
+  retry_max_wait: 10.0
+
 players:
   - nickname: "Alice"
     model_name: "google/gemini-3-pro-preview"

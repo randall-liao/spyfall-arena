@@ -45,6 +45,17 @@ class LLMClientFactory:
             f"Creating LLM client for model: {model_name} (provider={provider}, temp={temperature})"
         )
 
+        max_retries = 2
+        retry_min_wait = 1.0
+        retry_max_wait = 10.0
+
+        if self.config:
+            # GameConfig has 'llm' field which is LLMConfig
+            if hasattr(self.config, "llm") and self.config.llm:
+                max_retries = self.config.llm.max_retries
+                retry_min_wait = self.config.llm.retry_min_wait
+                retry_max_wait = self.config.llm.retry_max_wait
+
         # Use provider first, then fall back to model name detection for backward compatibility
         if provider == LLMProvider.GOOGLE_AI_STUDIO or (
             provider is None and (
@@ -62,6 +73,9 @@ class LLMClientFactory:
                 temperature=temperature,
                 rate_limiter=self.rate_limiter,
                 reasoning_config=reasoning_config,
+                max_retries=max_retries,
+                retry_min_wait=retry_min_wait,
+                retry_max_wait=retry_max_wait,
             )
         elif provider == LLMProvider.OPEN_ROUTER or provider is None:
             api_key = self.api_key_manager.get_api_key()
@@ -71,6 +85,7 @@ class LLMClientFactory:
                 temperature=temperature,
                 rate_limiter=self.rate_limiter,
                 reasoning_config=reasoning_config,
+                max_retries=max_retries,
             )
         else:
             raise ValueError(f"Unsupported provider: {provider}")

@@ -66,8 +66,15 @@ class RateLimitConfig(BaseModel):
     burst_limit: int = Field(default=5, gt=0)
 
 
+class LLMConfig(BaseModel):
+    max_retries: int = Field(default=2, ge=0, le=10)
+    retry_min_wait: float = Field(default=1.0, ge=0.1, le=60.0)
+    retry_max_wait: float = Field(default=10.0, ge=1.0, le=300.0)
+
+
 class GameConfig(BaseModel):
     game: GameRulesConfig = Field(default_factory=GameRulesConfig)
+    llm: LLMConfig = Field(default_factory=LLMConfig)
     rate_limit: RateLimitConfig = Field(default_factory=RateLimitConfig)
     players: List[PlayerConfig] = Field(..., min_length=2, max_length=12)
     locations: List[str] = Field(..., min_length=1)
