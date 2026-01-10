@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 from config.api_key_manager import ApiKeyManager
+from config.config_schema import LLMProvider
 from llm.gemini_client import GeminiClient
 from llm.llm_client_factory import LLMClientFactory
 from llm.openai_client import OpenAIClient
@@ -15,12 +16,13 @@ class TestLLMClientFactory(unittest.TestCase):
     def test_create_openai_client(self):
         self.mock_api_key_manager.get_api_key.return_value = "sk-openai-key"
 
-        client = self.factory.create_client(model_name="gpt-4", temperature=0.5)
+        client = self.factory.create_client(
+            model_name="gpt-4", provider=LLMProvider.OPEN_ROUTER, temperature=0.5
+        )
 
         self.assertIsInstance(client, OpenAIClient)
         self.assertEqual(client.model_name, "gpt-4")
         self.assertEqual(client.temperature, 0.5)
-        self.mock_api_key_manager.get_api_key.assert_called_once()
         self.mock_api_key_manager.get_api_key.assert_called_once()
         self.mock_api_key_manager.get_google_api_key.assert_not_called()
 
@@ -29,7 +31,7 @@ class TestLLMClientFactory(unittest.TestCase):
         reasoning_config = {"effort": "high"}
 
         client = self.factory.create_client(
-            model_name="gpt-4", temperature=0.5, reasoning_config=reasoning_config
+            model_name="gpt-4", provider=LLMProvider.OPEN_ROUTER, temperature=0.5, reasoning_config=reasoning_config
         )
 
         self.assertIsInstance(client, OpenAIClient)
@@ -41,7 +43,9 @@ class TestLLMClientFactory(unittest.TestCase):
         self.mock_api_key_manager.get_google_api_key.return_value = "AIza-google-key"
 
         client = self.factory.create_client(
-            model_name="gemini-1.5-flash", temperature=0.8
+            model_name="gemini-1.5-flash",
+            provider=LLMProvider.GOOGLE_AI_STUDIO,
+            temperature=0.8,
         )
 
         self.assertIsInstance(client, GeminiClient)
@@ -54,7 +58,11 @@ class TestLLMClientFactory(unittest.TestCase):
     def test_create_gemini_client_case_insensitive(self, mock_genai_client):
         self.mock_api_key_manager.get_google_api_key.return_value = "AIza-google-key"
 
-        client = self.factory.create_client(model_name="Gemini-Pro", temperature=0.8)
+        client = self.factory.create_client(
+            model_name="Gemini-Pro",
+            provider=LLMProvider.GOOGLE_AI_STUDIO,
+            temperature=0.8,
+        )
 
         self.assertIsInstance(client, GeminiClient)
 
@@ -63,7 +71,7 @@ class TestLLMClientFactory(unittest.TestCase):
         self.mock_api_key_manager.get_google_api_key.return_value = "AIza-google-key"
 
         client = self.factory.create_client(
-            model_name="models/gemma-3-27b", temperature=0.9
+            model_name="models/gemma-3-27b", provider=LLMProvider.GOOGLE_AI_STUDIO, temperature=0.9
         )
 
         self.assertIsInstance(client, GeminiClient)

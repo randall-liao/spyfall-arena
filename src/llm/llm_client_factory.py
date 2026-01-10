@@ -2,6 +2,7 @@ from llm.enum import LLMClientType
 from loguru import logger
 
 from config.api_key_manager import ApiKeyManager
+from config.config_schema import LLMProvider
 from typing import Any, Dict, Optional, TYPE_CHECKING
 
 from llm.base_client import BaseLLMClient
@@ -31,6 +32,7 @@ class LLMClientFactory:
     def create_client(
         self,
         model_name: str,
+        provider: LLMProvider,
         temperature: float = 0.7,
         client_type: LLMClientType | None = None,
         reasoning_config: Optional[Dict[str, Any]] = None,
@@ -40,14 +42,18 @@ class LLMClientFactory:
         Supports OpenRouter and Google Gemini.
         """
         logger.debug(
-            f"Creating LLM client for model: {model_name} (temp={temperature})"
+            f"Creating LLM client for model: {model_name} (provider={provider}, temp={temperature})"
         )
-        if (
-            model_name.lower().startswith("gemini")
-            or model_name.lower().startswith("models/gemini")
-            or model_name.lower().startswith("gemma")
-            or model_name.lower().startswith("models/gemma")
-            or client_type == LLMClientType.GOOGLE_AI_STUDIO
+
+        # Use provider first, then fall back to model name detection for backward compatibility
+        if provider == LLMProvider.GOOGLE_AI_STUDIO or (
+            provider is None and (
+                model_name.lower().startswith("gemini")
+                or model_name.lower().startswith("models/gemini")
+                or model_name.lower().startswith("gemma")
+                or model_name.lower().startswith("models/gemma")
+                or client_type == LLMClientType.GOOGLE_AI_STUDIO
+            )
         ):
             api_key = self.api_key_manager.get_google_api_key()
             return GeminiClient(
@@ -57,7 +63,7 @@ class LLMClientFactory:
                 rate_limiter=self.rate_limiter,
                 reasoning_config=reasoning_config,
             )
-        else:
+        elif provider == LLMProvider.OPEN_ROUTER or provider is None:
             api_key = self.api_key_manager.get_api_key()
             return OpenAIClient(
                 model_name=model_name,
@@ -66,3 +72,5 @@ class LLMClientFactory:
                 rate_limiter=self.rate_limiter,
                 reasoning_config=reasoning_config,
             )
+        else:
+            raise ValueError(f"Unsupported provider: {provider}")
