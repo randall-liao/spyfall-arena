@@ -1,6 +1,7 @@
 from loguru import logger
 
 from config.api_key_manager import ApiKeyManager
+from config.config_schema import LLMProvider
 from llm.base_client import BaseLLMClient
 from llm.gemini_client import GeminiClient
 from llm.openai_client import OpenAIClient
@@ -15,6 +16,7 @@ class LLMClientFactory:
     def create_client(
         self,
         model_name: str,
+        provider: LLMProvider,
         temperature: float = 0.7,
     ) -> BaseLLMClient:
         """
@@ -22,26 +24,22 @@ class LLMClientFactory:
         Supports OpenRouter and Google Gemini.
         """
         logger.debug(
-            f"Creating LLM client for model: {model_name} (temp={temperature})"
+            f"Creating LLM client for model: {model_name} (provider={provider}, temp={temperature})"
         )
-        api_key = self.api_key_manager.get_api_key()
-        # In the future, this could be extended to support other providers.
-        return OpenAIClient(
-            model_name=model_name,
-            api_key=api_key,
-            temperature=temperature,
-        )
-        if model_name.lower().startswith("gemini"):
+
+        if provider == LLMProvider.GOOGLE_AI_STUDIO:
             api_key = self.api_key_manager.get_google_api_key()
             return GeminiClient(
                 model_name=model_name,
                 api_key=api_key,
                 temperature=temperature,
             )
-        else:
+        elif provider == LLMProvider.OPEN_ROUTER:
             api_key = self.api_key_manager.get_api_key()
             return OpenAIClient(
                 model_name=model_name,
                 api_key=api_key,
                 temperature=temperature,
             )
+        else:
+            raise ValueError(f"Unsupported provider: {provider}")

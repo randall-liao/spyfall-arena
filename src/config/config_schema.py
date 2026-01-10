@@ -3,9 +3,17 @@ from typing import List, Optional
 from pydantic import BaseModel, Field, conint, constr, field_validator
 
 
+from enum import Enum
+
+class LLMProvider(str, Enum):
+    OPEN_ROUTER = "OPEN_ROUTER"
+    GOOGLE_AI_STUDIO = "GOOGLE_AI_STUDIO"
+
+
 class PlayerConfig(BaseModel):
     nickname: str = Field(..., min_length=1)
     model_name: str = Field(..., min_length=1)
+    provider: LLMProvider = Field(default=LLMProvider.OPEN_ROUTER)
     temperature: float = Field(default=0.7, ge=0.0, le=2.0)
 
 
