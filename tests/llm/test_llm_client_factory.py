@@ -78,3 +78,23 @@ class TestLLMClientFactory(unittest.TestCase):
         self.assertEqual(client.model_name, "models/gemma-3-27b")
         self.mock_api_key_manager.get_google_api_key.assert_called_once()
         self.mock_api_key_manager.get_api_key.assert_not_called()
+
+    def test_create_client_with_rate_limiter(self):
+        mock_config = MagicMock()
+        mock_config.rate_limit.enabled = True
+        mock_config.rate_limit.requests_per_minute = 60
+        mock_config.rate_limit.burst_limit = 10
+
+        factory = LLMClientFactory(self.mock_api_key_manager, config=mock_config)
+
+        self.assertIsNotNone(factory.rate_limiter)
+        self.assertEqual(factory.rate_limiter.capacity, 10)
+
+    def test_create_client_with_unsupported_provider(self):
+        with self.assertRaises(ValueError):
+            self.factory.create_client(
+                model_name="gpt-4",
+                provider="UNKNOWN_PROVIDER",  # type: ignore
+                temperature=0.5
+            )
+
