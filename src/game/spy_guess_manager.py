@@ -62,6 +62,7 @@ class SpyGuessManager:
         )
         llm_client = self.llm_factory.create_client(
             model_name=player_config.model_name,
+            provider=player_config.provider,
             temperature=player_config.temperature,
             reasoning_config=reasoning,
         )

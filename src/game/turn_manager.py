@@ -79,6 +79,7 @@ class TurnManager:
         )
         asker_llm_client = self.llm_factory.create_client(
             model_name=asker_config.model_name,
+            provider=asker_config.provider,
             temperature=asker_config.temperature,
             reasoning_config=asker_reasoning,
         )
@@ -120,6 +121,7 @@ class TurnManager:
         )
         answerer_llm_client = self.llm_factory.create_client(
             model_name=answerer_config.model_name,
+            provider=answerer_config.provider,
             temperature=answerer_config.temperature,
             reasoning_config=answerer_reasoning,
         )
