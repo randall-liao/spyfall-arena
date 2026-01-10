@@ -6,18 +6,15 @@ from game.game_state import RoundState, VoteAttempt
 
 
 class ScoringEngine:
-    """Calculates player scores based on the outcome of a Spyfall round."""
+    """Calculates round scores per game-rules.md (Scoring and who wins).
+
+    - Spy: 4 pts for correct location guess or civilian misidentification
+    - Spy: 2 pts if not caught and no correct guess
+    - Civilians: 1 pt each for catching spy, 2 pts for vote initiator
+    """
 
     def calculate_round_scores(self, round_state: RoundState) -> Dict[str, int]:
-        """
-        Calculates the scores for all players for a completed round.
-
-        Args:
-            round_state: The state of the round that has just finished.
-
-        Returns:
-            A dictionary mapping player nicknames to the points they earned in the round.
-        """
+        """Return nickname-to-points mapping for the completed round."""
         logger.debug(f"Calculating scores for Round {round_state.round_number}")
         scores: Dict[str, int] = {
             nickname: 0 for nickname in round_state.role_assignments

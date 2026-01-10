@@ -17,7 +17,11 @@ from config.config_schema import GameConfig
 
 
 class SpyGuessManager:
-    """Manages the spy's attempt to guess the location."""
+    """Handles spy location guess per game-rules.md (Spy guessing the location).
+
+    At any time, the spy may reveal themselves and guess the location.
+    A correct guess ends the round with spy victory (4 pts).
+    """
 
     def __init__(
         self,
@@ -36,15 +40,7 @@ class SpyGuessManager:
         available_locations: List[str],
         actual_location: str,
     ) -> Optional[SpyGuess]:
-        """
-        Asks the spy if they want to guess the location and processes the guess.
-
-        Returns:
-            A SpyGuess object if the spy makes a guess, otherwise None.
-
-        Raises:
-            ValueError: If the LLM provides an invalid response.
-        """
+        """Prompt the spy LLM to decide whether to guess; return SpyGuess if so."""
         prompt = self.prompt_builder.build_spy_guess_prompt(
             conversation_history, available_locations
         )

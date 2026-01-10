@@ -14,7 +14,12 @@ if TYPE_CHECKING:
 
 
 class LLMClientFactory:
-    """A factory for creating LLM clients."""
+    """Factory for creating provider-specific LLM clients.
+
+    Implements PRD Section 4.2 (LLM Player Management) - routes model
+    requests to appropriate providers (OpenRouter or Google AI Studio)
+    with configured retry logic and optional rate limiting.
+    """
 
     def __init__(self, api_key_manager: ApiKeyManager, config: "GameConfig" = None):
         self.api_key_manager = api_key_manager
@@ -37,10 +42,7 @@ class LLMClientFactory:
         client_type: LLMClientType | None = None,
         reasoning_config: Optional[Dict[str, Any]] = None,
     ) -> BaseLLMClient:
-        """
-        Factory method to create an LLM client.
-        Supports OpenRouter and Google Gemini.
-        """
+        """Create an LLM client for the specified model and provider."""
         logger.debug(
             f"Creating LLM client for model: {model_name} (provider={provider}, temp={temperature})"
         )
@@ -56,7 +58,7 @@ class LLMClientFactory:
                 retry_min_wait = self.config.llm.retry_min_wait
                 retry_max_wait = self.config.llm.retry_max_wait
 
-        # Use provider first, then fall back to model name detection for backward compatibility
+        # Provider-based routing with model name fallback for backward compat
         if provider == LLMProvider.GOOGLE_AI_STUDIO or (
             provider is None and (
                 model_name.lower().startswith("gemini")

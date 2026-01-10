@@ -8,23 +8,11 @@ from config.config_schema import GameConfig
 
 
 class ConfigLoader:
-    """Loads and validates the game configuration from a YAML file."""
+    """Load and validate game config per PRD Section 1 (Configuration Management)."""
 
     @staticmethod
     def load_config(config_path: Path) -> GameConfig:
-        """
-        Loads the configuration from a given path.
-
-        Args:
-            config_path: The path to the YAML configuration file.
-
-        Returns:
-            A validated GameConfig object.
-
-        Raises:
-            FileNotFoundError: If the config file does not exist.
-            ValueError: If the config file is malformed (YAML error or validation error).
-        """
+        """Parse YAML file and return validated GameConfig."""
         logger.info(f"Loading configuration from {config_path}")
         if not config_path.is_file():
             raise FileNotFoundError(f"Configuration file not found at: {config_path}")

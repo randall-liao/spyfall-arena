@@ -5,12 +5,10 @@ from loguru import logger
 
 
 class TokenBucketLimiter:
-    """
-    A thread-safe Token Bucket rate limiter.
+    """Thread-safe Token Bucket rate limiter per PRD Section 6 constraints.
 
-    The bucket fills with tokens at a specific rate (requests_per_minute).
-    Each request consumes one token. If the bucket is empty, the caller blocks
-    until a token becomes available.
+    Prevents RESOURCE_EXHAUSTED errors by limiting request rate.
+    Callers block until a token is available.
     """
 
     def __init__(self, requests_per_minute: int, burst_limit: int):
@@ -35,9 +33,7 @@ class TokenBucketLimiter:
             self.last_refill = now
 
     def wait_for_token(self):
-        """
-        Blocks until a token is available, then consumes it.
-        """
+        """Block until a token is available, then consume it."""
         while True:
             with self.lock:
                 self._refill()

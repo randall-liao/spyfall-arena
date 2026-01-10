@@ -7,7 +7,11 @@ from loguru import logger
 
 
 class ApiKeyManager:
-    """A singleton class to manage API keys."""
+    """Singleton for secure API key retrieval (keyring-first, YAML fallback).
+
+    Supports PRD Section 4.2 multi-provider requirement. Keys are cached
+    after first load to avoid repeated I/O.
+    """
 
     _instance = None
     _api_key: Optional[str] = None
@@ -21,19 +25,7 @@ class ApiKeyManager:
         return cls._instance
 
     def get_api_key(self) -> str:
-        """
-        Retrieves the OpenRouter API key.
-
-        The key is loaded only once and stored in memory. The loading order is:
-        1. System keyring (recommended)
-        2. `apikeys.yaml` file (fallback with a warning)
-
-        Returns:
-            The OpenRouter API key.
-
-        Raises:
-            ValueError: If the API key cannot be found in any of the sources.
-        """
+        """Return OpenRouter API key; raise ValueError if unavailable."""
         if not self._key_loaded:
             self._load_api_key()
             self._key_loaded = True
@@ -46,19 +38,7 @@ class ApiKeyManager:
         return self._api_key
 
     def get_google_api_key(self) -> str:
-        """
-        Retrieves the Google API key.
-
-        The key is loaded only once and stored in memory. The loading order is:
-        1. System keyring (recommended)
-        2. `apikeys.yaml` file (fallback with a warning)
-
-        Returns:
-            The Google API key.
-
-        Raises:
-            ValueError: If the API key cannot be found in any of the sources.
-        """
+        """Return Google API key; raise ValueError if unavailable."""
         if not self._google_key_loaded:
             self._load_google_api_key()
             self._google_key_loaded = True

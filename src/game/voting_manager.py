@@ -21,7 +21,11 @@ from config.config_schema import GameConfig
 
 
 class VotingManager:
-    """Manages the voting process in a round of Spyfall."""
+    """Manages voting per PRD Section 4 and game-rules.md.  
+
+    Each player may initiate one vote per round. Vote must be unanimous
+    to indict. If passed, round ends immediately.
+    """
 
     def __init__(
         self,
@@ -40,15 +44,7 @@ class VotingManager:
         conversation_history: List,
         players_who_voted: Set[str],
     ) -> Optional[str]:
-        """
-        Asks the current player if they want to initiate a vote.
-
-        Returns:
-            The nickname of the suspected spy if a vote is initiated, otherwise None.
-
-        Raises:
-            ValueError: If the LLM provides an invalid response.
-        """
+        """Query if player wants to initiate vote; return suspect or None."""
         can_vote = current_player not in players_who_voted
 
         prompt = self.prompt_builder.build_vote_initiation_prompt(
@@ -95,12 +91,7 @@ class VotingManager:
         player_roles: Dict[str, Role],
         conversation_history: List,
     ) -> VoteAttempt:
-        """
-        Conducts a vote to indict a suspected spy.
-
-        Returns:
-            A VoteAttempt object with the results of the vote.
-        """
+        """Collect votes from all players; return VoteAttempt with results."""
         votes: Dict[str, bool] = {}
         system_prompt = self.prompt_builder.build_system_prompt()
 

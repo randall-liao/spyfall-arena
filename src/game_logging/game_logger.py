@@ -11,7 +11,11 @@ from game_logging.metrics_calculator import calculate_game_metrics, calculate_ro
 
 
 class GameLogger:
-    """Handles structured JSON logging for a complete game of Spyfall."""
+    """Structured JSON logging per PRD Section 5 (Logging & Storage).
+
+    Produces machine-readable game logs with metadata, dialogue,
+    votes, and computed metrics for downstream analysis.
+    """
 
     def __init__(self, config: GameConfig):
         self.config = config
@@ -29,15 +33,7 @@ class GameLogger:
         )
 
     def write_final_log(self, game_state: GameState) -> str:
-        """
-        Writes the complete game state to a structured JSON log file.
-
-        Args:
-            game_state: The final state of the game.
-
-        Returns:
-            The path to the written log file.
-        """
+        """Write game state to JSON file; return filepath."""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"{timestamp}_game_{game_state.game_id}.json"
         filepath = self.log_dir / filename

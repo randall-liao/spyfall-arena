@@ -4,14 +4,7 @@ from loguru import logger
 
 
 def setup_console_logging(log_level: str = "INFO") -> None:
-    """
-    Configures the console logging for the application.
-
-    Removes default handlers and adds a formatted handler to stderr.
-
-    Args:
-        log_level: The logging level (e.g., "DEBUG", "INFO", "WARNING", "ERROR").
-    """
+    """Configure Loguru console output with color-coded formatting."""
     logger.remove()
 
     log_format = (
