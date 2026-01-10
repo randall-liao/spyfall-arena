@@ -1,5 +1,4 @@
-import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from llm.gemini_client import GeminiClient
 
 def test_gemini_client_init_retry_params():
@@ -49,7 +48,7 @@ def test_gemini_client_retry_logic_uses_config():
     # However, to test that Retrying is constructed with correct params, we might need to patch tenacity.Retrying
     
     with patch("llm.gemini_client.Retrying") as MockRetrying, \
-         patch.object(client, "_make_api_call_impl") as mock_impl:
+         patch.object(client, "_make_api_call_impl"):
         
         # We need mock_impl to return something so Retrying(..)(..) returns it
         mock_retry_instance = MockRetrying.return_value

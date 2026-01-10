@@ -1,6 +1,5 @@
 import time
 import threading
-from typing import Optional
 from loguru import logger
 
 

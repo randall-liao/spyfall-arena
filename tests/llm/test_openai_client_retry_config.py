@@ -1,5 +1,4 @@
-import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from llm.openai_client import OpenAIClient
 
 def test_openai_client_init_max_retries():
@@ -11,7 +10,7 @@ def test_openai_client_init_max_retries():
     # we verify it accepts it and passes it to OpenAI)
     
     with patch("llm.openai_client.OpenAI") as mock_openai:
-        client = OpenAIClient(
+        OpenAIClient(
             model_name=model_name,
             api_key=api_key,
             max_retries=5
@@ -29,7 +28,7 @@ def test_openai_client_init_default_max_retries():
         # Assuming we will set a default in __init__ or use OpenAI's default.
         # But wait, we need to decide what the default is in __init__.
         # The spec says "Test default max_retries value".
-        client = OpenAIClient(
+        OpenAIClient(
             model_name=model_name,
             api_key=api_key
         )

@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import MagicMock, patch
-from config.config_schema import GameConfig, LLMConfig, LLMProvider
-from llm.llm_client_factory import LLMClientFactory, LLMClientType
+from config.config_schema import LLMConfig, LLMProvider
+from llm.llm_client_factory import LLMClientFactory
 
 @pytest.fixture
 def mock_api_key_manager():
