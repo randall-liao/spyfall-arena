@@ -21,7 +21,7 @@ from config.config_schema import GameConfig
 
 
 class VotingManager:
-    """Manages voting per PRD Section 4 and game-rules.md.  
+    """Manages voting per PRD Section 4 and game-rules.md.
 
     Each player may initiate one vote per round. Vote must be unanimous
     to indict. If passed, round ends immediately.
@@ -105,7 +105,9 @@ class VotingManager:
                 p for p in self.config.players if p.nickname == nickname
             )
             reasoning = (
-                player_config.reasoning.model_dump() if player_config.reasoning else None
+                player_config.reasoning.model_dump()
+                if player_config.reasoning
+                else None
             )
             llm_client = self.llm_factory.create_client(
                 model_name=player_config.model_name,

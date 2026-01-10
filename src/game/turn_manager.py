@@ -105,7 +105,9 @@ class TurnManager:
             p for p in self.config.players if p.nickname == target_nickname
         )
         answerer_reasoning = (
-            answerer_config.reasoning.model_dump() if answerer_config.reasoning else None
+            answerer_config.reasoning.model_dump()
+            if answerer_config.reasoning
+            else None
         )
         answerer_llm_client = self.llm_factory.create_client(
             model_name=answerer_config.model_name,

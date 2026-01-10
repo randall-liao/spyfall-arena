@@ -20,7 +20,7 @@ class TestOpenAIClientReasoning(unittest.TestCase):
         client = OpenAIClient(
             model_name=self.model_name,
             api_key=self.api_key,
-            temperature=self.temperature
+            temperature=self.temperature,
         )
         self.assertIsNone(client.reasoning_config)
 
@@ -30,7 +30,7 @@ class TestOpenAIClientReasoning(unittest.TestCase):
             model_name=self.model_name,
             api_key=self.api_key,
             temperature=self.temperature,
-            reasoning_config=reasoning
+            reasoning_config=reasoning,
         )
         self.assertEqual(client.reasoning_config, reasoning)
 
@@ -38,11 +38,11 @@ class TestOpenAIClientReasoning(unittest.TestCase):
         client = OpenAIClient(
             model_name=self.model_name,
             api_key=self.api_key,
-            temperature=self.temperature
+            temperature=self.temperature,
         )
         self.mock_completions.return_value.dict.return_value = {
             "choices": [{"message": {"content": "response"}}],
-            "usage": {}
+            "usage": {},
         }
 
         messages = [{"role": "user", "content": "hello"}]
@@ -61,11 +61,11 @@ class TestOpenAIClientReasoning(unittest.TestCase):
             model_name=self.model_name,
             api_key=self.api_key,
             temperature=self.temperature,
-            reasoning_config=reasoning
+            reasoning_config=reasoning,
         )
         self.mock_completions.return_value.dict.return_value = {
             "choices": [{"message": {"content": "response"}}],
-            "usage": {}
+            "usage": {},
         }
 
         messages = [{"role": "user", "content": "hello"}]
@@ -83,11 +83,11 @@ class TestOpenAIClientReasoning(unittest.TestCase):
             model_name=self.model_name,
             api_key=self.api_key,
             temperature=self.temperature,
-            reasoning_config=reasoning
+            reasoning_config=reasoning,
         )
         self.mock_completions.return_value.dict.return_value = {
             "choices": [{"message": {"content": "response"}}],
-            "usage": {}
+            "usage": {},
         }
 
         messages = [{"role": "user", "content": "hello"}]

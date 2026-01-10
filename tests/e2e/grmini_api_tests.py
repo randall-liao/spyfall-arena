@@ -12,4 +12,3 @@ gemini_client: BaseLLMClient = client_factory.create_client(
     model_name=MODEL_NAME,
     temperature=0.9,
 )
-

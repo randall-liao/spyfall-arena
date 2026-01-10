@@ -60,7 +60,8 @@ class LLMClientFactory:
 
         # Provider-based routing with model name fallback for backward compat
         if provider == LLMProvider.GOOGLE_AI_STUDIO or (
-            provider is None and (
+            provider is None
+            and (
                 model_name.lower().startswith("gemini")
                 or model_name.lower().startswith("models/gemini")
                 or model_name.lower().startswith("gemma")
