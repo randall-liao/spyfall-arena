@@ -11,7 +11,12 @@ from game_logging.metrics_calculator import calculate_game_metrics, calculate_ro
 
 
 class GameLogger:
-    """Handles structured JSON logging for a complete game of Spyfall."""
+    """
+    Handles structured JSON logging for game sessions.
+
+    Implements 'Req 5: Logging and Data Recording' and 'Req 8: Output Specification'.
+    Ensures that a full trace of the game (turns, votes, roles) is preserved for analysis.
+    """
 
     def __init__(self, config: GameConfig):
         self.config = config
@@ -19,7 +24,11 @@ class GameLogger:
         self.log_dir.mkdir(parents=True, exist_ok=True)
 
     def setup_file_logging(self):
-        """Configures Loguru for game execution logging."""
+        """
+        Configures the Loguru sink for file-based logging.
+
+        Separates application execution logs (INFO/DEBUG) from the structured game data JSON.
+        """
         log_file = self.log_dir / "game_execution.log"
         logger.add(
             log_file,
@@ -30,13 +39,14 @@ class GameLogger:
 
     def write_final_log(self, game_state: GameState) -> str:
         """
-        Writes the complete game state to a structured JSON log file.
+        Serializes and writes the complete game state to a JSON file.
 
-        Args:
-            game_state: The final state of the game.
-
-        Returns:
-            The path to the written log file.
+        The output schema conforms to 'Req 5 Acceptance Criteria', containing:
+        - Metadata & Config Snapshot
+        - Hidden Role Assignments
+        - Turn-by-turn Dialogue
+        - Voting Records
+        - Calculated Metrics (Req 6)
         """
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"{timestamp}_game_{game_state.game_id}.json"
@@ -51,7 +61,9 @@ class GameLogger:
         return str(filepath)
 
     def _build_log_structure(self, game_state: GameState) -> dict:
-        """Builds the complete log structure from the game state."""
+        """
+        Aggregates game data and metrics into the final log structure.
+        """
         game_metrics = calculate_game_metrics(game_state)
         
         return {
@@ -66,7 +78,9 @@ class GameLogger:
         }
 
     def _serialize_round(self, round_state: RoundState) -> dict:
-        """Serializes a RoundState object to a dictionary."""
+        """
+        Helper to serialize RoundState, including nested objects like Turns and Votes.
+        """
         round_metrics = calculate_round_metrics(round_state)
         
         return {

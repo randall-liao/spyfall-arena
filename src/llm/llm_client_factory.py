@@ -14,7 +14,13 @@ if TYPE_CHECKING:
 
 
 class LLMClientFactory:
-    """A factory for creating LLM clients."""
+    """
+    Abstracts the creation of LLM clients.
+
+    Implements 'Req 4.2: LLM Player Management', allowing the system to
+    support multiple models from different providers (OpenAI, Google, etc.)
+    interchangeably.
+    """
 
     def __init__(self, api_key_manager: ApiKeyManager, config: "GameConfig" = None):
         self.api_key_manager = api_key_manager
@@ -38,8 +44,13 @@ class LLMClientFactory:
         reasoning_config: Optional[Dict[str, Any]] = None,
     ) -> BaseLLMClient:
         """
-        Factory method to create an LLM client.
-        Supports OpenRouter and Google Gemini.
+        Instantiates the appropriate LLM client based on provider and configuration.
+
+        Handles:
+        - Provider selection (Google vs OpenRouter).
+        - API key retrieval via ApiKeyManager.
+        - Rate limiter injection (Req 6 - optional extension for stability).
+        - Retry configuration setup (Req 7: Error Handling & Stability).
         """
         logger.debug(
             f"Creating LLM client for model: {model_name} (provider={provider}, temp={temperature})"
@@ -50,13 +61,13 @@ class LLMClientFactory:
         retry_max_wait = 10.0
 
         if self.config:
-            # GameConfig has 'llm' field which is LLMConfig
             if hasattr(self.config, "llm") and self.config.llm:
                 max_retries = self.config.llm.max_retries
                 retry_min_wait = self.config.llm.retry_min_wait
                 retry_max_wait = self.config.llm.retry_max_wait
 
-        # Use provider first, then fall back to model name detection for backward compatibility
+        # Heuristic detection for provider is retained for backward compatibility,
+        # but explicit 'provider' argument is preferred.
         if provider == LLMProvider.GOOGLE_AI_STUDIO or (
             provider is None and (
                 model_name.lower().startswith("gemini")

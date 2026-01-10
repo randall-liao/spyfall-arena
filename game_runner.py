@@ -8,7 +8,16 @@ from game_logging.game_logger import GameLogger
 
 
 def main():
-    """Main entry point for the Spyfall Arena game runner."""
+    """
+    Main entry point for the Spyfall Arena application.
+
+    Orchestrates the startup sequence:
+    1. Parse CLI arguments (Req 1).
+    2. Initialize logging (Req 5).
+    3. Load configuration (Req 1).
+    4. Start the Game Orchestrator (Req 4.1).
+    5. Save results (Req 8).
+    """
     parser = argparse.ArgumentParser(description="Run a game of Spyfall Arena.")
     parser.add_argument(
         "config_file",
@@ -23,7 +32,6 @@ def main():
     )
     args = parser.parse_args()
 
-    # Setup console logging before anything else
     setup_console_logging(args.log_level)
 
     try:

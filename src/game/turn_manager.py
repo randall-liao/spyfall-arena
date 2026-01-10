@@ -22,7 +22,12 @@ from config.config_schema import GameConfig
 
 
 class TurnManager:
-    """Manages the question-and-answer flow for a single turn in Spyfall."""
+    """
+    Manages the question-and-answer flow for a single turn in Spyfall.
+
+    Encapsulates the logic defined in 'Req 3: Game Loop and Turn-Based Interaction',
+    specifically the Asking Phase and Answering Phase.
+    """
 
     def __init__(
         self,
@@ -43,25 +48,20 @@ class TurnManager:
         previous_asker: Optional[str] = None,
     ) -> Turn:
         """
-        Executes a single question-and-answer turn.
+        Executes a complete Q&A interaction between two players.
 
-        Args:
-            current_asker: The nickname of the player asking the question.
-            player_roles: A dictionary mapping player nicknames to their roles.
-            conversation_history: The history of the conversation so far.
-            player_nicknames: A list of all player nicknames.
-            previous_asker: The nickname of the player who asked the previous question.
-
-        Returns:
-            A Turn object representing the completed turn.
+        Handles:
+        1. Context assembly for the 'Asker' (Req 3 Asking Phase).
+        2. LLM generation and validation of the question.
+        3. Context assembly for the 'Answerer' (Req 3 Answering Phase).
+        4. LLM generation and validation of the answer.
 
         Raises:
-            ValueError: If the LLM provides an invalid response.
+            ValueError: If the LLM generates output that violates the schema or game rules.
         """
         logger.info(f"Turn execution started. Asker: {current_asker}")
         asker_role = player_roles[current_asker]
 
-        # 1. Asker asks a question
         valid_targets = self.get_valid_targets(
             current_asker, previous_asker, player_nicknames
         )
@@ -84,6 +84,7 @@ class TurnManager:
             reasoning_config=asker_reasoning,
         )
 
+        # Enforce structured JSON output to ensure reliable parsing of the target and question.
         structured_question = asker_llm_client.generate_structured_response(
             system_prompt,
             f"{role_prompt}\n{question_prompt}",
@@ -105,7 +106,6 @@ class TurnManager:
         except ValidationError as e:
             raise ValueError(f"LLM returned invalid question format: {e}") from e
 
-        # 2. Target answers the question
         logger.info(f"Target {target_nickname} answering...")
         answerer_role = player_roles[target_nickname]
         answer_prompt = self.prompt_builder.build_answer_prompt(
@@ -137,7 +137,6 @@ class TurnManager:
         except ValidationError as e:
             raise ValueError(f"LLM returned invalid answer format: {e}") from e
 
-        # 3. Create and return the Turn object
         return Turn(
             turn_number=len(conversation_history) + 1,
             asker_nickname=current_asker,
@@ -148,7 +147,8 @@ class TurnManager:
 
     def get_next_asker(self, current_answerer: str) -> str:
         """
-        Determines the next asker. In Spyfall, the person who just answered becomes the next asker.
+        Determines the next asker based on game rules (Req 3, Rotation).
+        The player who answered becomes the next asker.
         """
         return current_answerer
 
@@ -159,8 +159,10 @@ class TurnManager:
         player_nicknames: List[str],
     ) -> List[str]:
         """
-        Gets the list of valid players for the current asker to question.
-        A player cannot question themselves or the person who just questioned them.
+        Calculates valid question targets.
+
+        Enforces the rule that a player cannot ask themselves or the player
+        who immediately preceded them (preventing infinite loops between two players).
         """
         invalid_targets = {current_asker, previous_asker}
         return [p for p in player_nicknames if p not in invalid_targets]

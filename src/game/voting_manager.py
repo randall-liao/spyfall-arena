@@ -21,7 +21,12 @@ from config.config_schema import GameConfig
 
 
 class VotingManager:
-    """Manages the voting process in a round of Spyfall."""
+    """
+    Manages the voting process for a Spyfall round.
+
+    Implements 'Req 4: Voting and Win Condition Logic'.
+    Handles both the initiation of votes by players and the collective voting process.
+    """
 
     def __init__(
         self,
@@ -41,13 +46,14 @@ class VotingManager:
         players_who_voted: Set[str],
     ) -> Optional[str]:
         """
-        Asks the current player if they want to initiate a vote.
+        Determines if the current player wishes to accuse another player of being the Spy.
+
+        This check happens before a player's turn (Req 3, Turn Structure).
+        A player who has already initiated a vote in the current round may be restricted
+        (logic handled by `players_who_voted` check).
 
         Returns:
-            The nickname of the suspected spy if a vote is initiated, otherwise None.
-
-        Raises:
-            ValueError: If the LLM provides an invalid response.
+             The suspect's nickname if a vote is triggered, otherwise None.
         """
         can_vote = current_player not in players_who_voted
 
@@ -96,10 +102,19 @@ class VotingManager:
         conversation_history: List,
     ) -> VoteAttempt:
         """
-        Conducts a vote to indict a suspected spy.
+        Executes the collective voting process (Req 4).
+
+        Iterates through all players to collect their votes on the accused suspect.
+        In Spyfall, a unanimous decision (often excluding the accused/accuser,
+        but implementation here checks for unanimous agreement) is usually required.
+
+        Logic:
+        1. Queries each player for a "yes/no" vote.
+        2. Aggregates results.
+        3. Determines if the vote passed based on unanimity.
 
         Returns:
-            A VoteAttempt object with the results of the vote.
+            A VoteAttempt object containing individual votes and the final result.
         """
         votes: Dict[str, bool] = {}
         system_prompt = self.prompt_builder.build_system_prompt()
@@ -132,7 +147,7 @@ class VotingManager:
                 response = VoteDecisionResponse(**structured_response)
                 votes[nickname] = response.vote_yes
             except (ValidationError, KeyError):
-                # If the LLM fails to vote, assume a 'no' vote to be safe
+                # Fail-safe: default to 'no' to prevent game crash on single LLM failure.
                 votes[nickname] = False
 
         passed = all(votes.values())
