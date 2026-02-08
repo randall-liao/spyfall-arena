@@ -3,12 +3,8 @@ from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
 
-from config.config_schema import (
-    GameConfig,
-    GameRulesConfig,
-    LoggingConfig,
-    PlayerConfig,
-)
+from config.config_schema import (GameConfig, GameRulesConfig, LoggingConfig,
+                                  PlayerConfig)
 from game.game_state import GamePhase, GameState, RoundPhase, RoundState
 from game_logging.game_logger import GameLogger
 from game_logging.metrics_calculator import GameMetrics, RoundMetrics

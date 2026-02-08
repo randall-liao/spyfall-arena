@@ -1,8 +1,7 @@
+from config.api_key_manager import ApiKeyManager
 from llm.enum import LLMClientType
 from llm.gemini_client import GeminiClient
 from llm.llm_client_factory import LLMClientFactory
-from config.api_key_manager import ApiKeyManager
-
 
 api_key_manager: ApiKeyManager = ApiKeyManager()
 client_factory: LLMClientFactory = LLMClientFactory(api_key_manager)

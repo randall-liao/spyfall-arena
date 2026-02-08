@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
-from game.game_state import RoundState, GameState
+
+from game.game_state import GameState, RoundState
 
 
 @dataclass

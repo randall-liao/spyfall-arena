@@ -36,6 +36,7 @@ packages = [
     { include = "llm", from = "src" },
     { include = "game_logging", from = "src" },
     { include = "prompts", from = "src" },
+    { include = "analytics", from = "src" },
 ]
 
 [build-system]

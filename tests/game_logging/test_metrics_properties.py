@@ -1,11 +1,13 @@
-import pytest
-from hypothesis import given, strategies as st
 from unittest.mock import MagicMock
-from game.game_state import RoundState, Role, VoteAttempt, Turn, SpyGuess, GameState
-from game_logging.metrics_calculator import (
-    calculate_round_metrics,
-    calculate_game_metrics,
-)
+
+import pytest
+from hypothesis import given
+from hypothesis import strategies as st
+
+from game.game_state import (GameState, Role, RoundState, SpyGuess, Turn,
+                             VoteAttempt)
+from game_logging.metrics_calculator import (calculate_game_metrics,
+                                             calculate_round_metrics)
 
 
 # Property 1: Round outcome determination

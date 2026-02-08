@@ -1,13 +1,13 @@
-import pytest
-from unittest.mock import MagicMock
 from dataclasses import asdict, is_dataclass
-from game_logging.metrics_calculator import (
-    RoundMetrics,
-    GameMetrics,
-    calculate_round_metrics,
-    calculate_game_metrics,
-)
-from game.game_state import RoundState, Role, VoteAttempt, SpyGuess, Turn, GameState
+from unittest.mock import MagicMock
+
+import pytest
+
+from game.game_state import (GameState, Role, RoundState, SpyGuess, Turn,
+                             VoteAttempt)
+from game_logging.metrics_calculator import (GameMetrics, RoundMetrics,
+                                             calculate_game_metrics,
+                                             calculate_round_metrics)
 
 # ... existing tests ...
 # (Repasting everything is annoying, I should have used replace or append if I could, but I'll paste the whole new content with additions)
