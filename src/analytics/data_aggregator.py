@@ -16,9 +16,11 @@ class DataAggregator:
         for game in games:
             # Map nickname to model name for this game
             # Assuming nicknames are unique per game as per config schema
+            # We strip whitespace to be robust against log inconsistencies
             nickname_to_model: Dict[str, str] = {}
             for player in game.players:
-                nickname_to_model[player.nickname] = player.model_name
+                clean_nick = player.nickname.strip()
+                nickname_to_model[clean_nick] = player.model_name
                 if player.model_name not in model_data_map:
                     model_data_map[player.model_name] = ModelData(
                         model_name=player.model_name
@@ -67,10 +69,11 @@ class DataAggregator:
 
         # Iterate over all players in this round (from role assignments)
         for nickname, role_assignment in round_rec.role_assignments.items():
-            if nickname not in nickname_to_model:
+            clean_nick = nickname.strip()
+            if clean_nick not in nickname_to_model:
                 continue  # Should not happen if data is consistent
 
-            model_name = nickname_to_model[nickname]
+            model_name = nickname_to_model[clean_nick]
             model_data = model_data_map[model_name]
 
             model_data.total_rounds += 1
@@ -86,22 +89,25 @@ class DataAggregator:
 
         # Process Turns
         for turn in round_rec.turns:
-            if turn.asker_nickname in nickname_to_model:
-                asker_model = nickname_to_model[turn.asker_nickname]
+            clean_asker = turn.asker_nickname.strip()
+            if clean_asker in nickname_to_model:
+                asker_model = nickname_to_model[clean_asker]
                 model_data_map[asker_model].turns_as_asker.append(turn)
 
-            if turn.answerer_nickname in nickname_to_model:
-                answerer_model = nickname_to_model[turn.answerer_nickname]
+            clean_answerer = turn.answerer_nickname.strip()
+            if clean_answerer in nickname_to_model:
+                answerer_model = nickname_to_model[clean_answerer]
                 model_data_map[answerer_model].turns_as_answerer.append(turn)
 
         # Process Votes
         for vote_attempt in round_rec.vote_attempts:
             voter_nicknames = vote_attempt.votes.keys()
             for voter_nick in voter_nicknames:
-                if voter_nick not in nickname_to_model:
+                clean_voter = voter_nick.strip()
+                if clean_voter not in nickname_to_model:
                     continue
 
-                voter_model = nickname_to_model[voter_nick]
+                voter_model = nickname_to_model[clean_voter]
                 vote_val = vote_attempt.votes[voter_nick]
 
                 # Determine correctness
@@ -133,19 +139,20 @@ class DataAggregator:
                 model_data_map[voter_model].votes_cast.append(vote_record)
 
                 # Also track received votes (being suspected)
-                if vote_attempt.suspect in nickname_to_model:
-                    suspect_model = nickname_to_model[vote_attempt.suspect]
+                clean_suspect = vote_attempt.suspect.strip()
+                if clean_suspect in nickname_to_model:
+                    suspect_model = nickname_to_model[clean_suspect]
                     # We are iterating per voter, so this would add duplicates if we add it here for every voter.
                     # We should add "votes received" maybe once per vote attempt?
                     # But `votes_received` is List[VoteRecord].
                     # If `VoteRecord` represents a single vote cast by someone, then `votes_received` for a model
                     # should be the list of votes cast AGAINST them.
 
-                    if vote_attempt.suspect == voter_nick:
+                    if clean_suspect == clean_voter:
                         # Self-vote?
                         pass
 
-                    if nickname_to_model.get(vote_attempt.suspect) == suspect_model:
+                    if nickname_to_model.get(clean_suspect) == suspect_model:
                         # This vote is against suspect_model
                         # We can store the same VoteRecord object in the suspect's received list
                         model_data_map[suspect_model].votes_received.append(vote_record)
