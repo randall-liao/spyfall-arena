@@ -78,14 +78,16 @@ class DataAggregator:
 
             model_data.total_rounds += 1
 
-            if role_assignment.is_spy:
-                model_data.spy_rounds.append(round_rec)
-            else:
-                model_data.civilian_rounds.append(round_rec)
-
             # Collect score
             score = round_rec.round_scores.get(nickname, 0)
             model_data.all_scores.append(score)
+
+            if role_assignment.is_spy:
+                model_data.spy_rounds.append(round_rec)
+                model_data.spy_scores.append(score)
+            else:
+                model_data.civilian_rounds.append(round_rec)
+                model_data.civilian_scores.append(score)
 
         # Process Turns
         for turn in round_rec.turns:

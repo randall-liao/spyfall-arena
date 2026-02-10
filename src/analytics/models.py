@@ -93,6 +93,8 @@ class ModelData:
     spy_rounds: List[RoundRecord] = field(default_factory=list)
     civilian_rounds: List[RoundRecord] = field(default_factory=list)
     all_scores: List[int] = field(default_factory=list)
+    spy_scores: List[int] = field(default_factory=list)
+    civilian_scores: List[int] = field(default_factory=list)
     votes_cast: List[VoteRecord] = field(default_factory=list)
     votes_received: List[VoteRecord] = field(default_factory=list)
     turns_as_asker: List[TurnRecord] = field(default_factory=list)

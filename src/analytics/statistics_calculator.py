@@ -38,7 +38,6 @@ class StatisticsCalculator:
         spy_rounds_survived = 0
         successful_spy_guesses = 0
         total_spy_guesses = 0
-        spy_scores = []
 
         for round_rec in data.spy_rounds:
             # Win check
@@ -55,14 +54,10 @@ class StatisticsCalculator:
                 if round_rec.spy_guess.correct:
                     successful_spy_guesses += 1
 
-            # Spy Score
-            score = round_rec.round_scores.get(data.model_name, 0)
-            spy_scores.append(score)
-
         if stats.spy_rounds_count > 0:
             stats.spy_win_rate = spy_wins / stats.spy_rounds_count
             stats.spy_survival_rate = spy_rounds_survived / stats.spy_rounds_count
-            stats.average_spy_score = sum(spy_scores) / stats.spy_rounds_count
+            stats.average_spy_score = sum(data.spy_scores) / stats.spy_rounds_count
         else:
             stats.spy_win_rate = 0.0
             stats.spy_survival_rate = 0.0
@@ -77,22 +72,17 @@ class StatisticsCalculator:
 
         # Civilian Win Rate
         civilian_wins = 0
-        civilian_scores = []
 
         for round_rec in data.civilian_rounds:
             # Civilians win if Spy did NOT win
             if not self._did_spy_win(round_rec):
                 civilian_wins += 1
 
-            # Civilian Score
-            score = round_rec.round_scores.get(data.model_name, 0)
-            civilian_scores.append(score)
-
         if stats.civilian_rounds_count > 0:
             stats.civilian_win_rate = civilian_wins / stats.civilian_rounds_count
             stats.civilian_success_rate = stats.civilian_win_rate  # Same metric
             stats.average_civilian_score = (
-                sum(civilian_scores) / stats.civilian_rounds_count
+                sum(data.civilian_scores) / stats.civilian_rounds_count
             )
         else:
             stats.civilian_win_rate = 0.0

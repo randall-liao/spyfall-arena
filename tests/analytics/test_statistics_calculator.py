@@ -91,6 +91,8 @@ def test_calculate_win_rates(calculator):
         total_rounds=2,
         spy_rounds=[spy_round],
         civilian_rounds=[civilian_round],
+        spy_scores=[5],
+        civilian_scores=[1]
     )
 
     stats = calculator.calculate_model_statistics(data)
