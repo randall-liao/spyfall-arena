@@ -42,10 +42,14 @@ class DataAggregator:
                     if score == max_score
                 ]
 
+                # Identify winning models (use set to avoid double counting if multiple players of same model win)
+                winning_models = set()
                 for winner_nick in winners:
                     if winner_nick in nickname_to_model:
-                        winner_model = nickname_to_model[winner_nick]
-                        model_data_map[winner_model].games_won += 1
+                        winning_models.add(nickname_to_model[winner_nick])
+
+                for winner_model in winning_models:
+                    model_data_map[winner_model].games_won += 1
 
         return model_data_map
 
