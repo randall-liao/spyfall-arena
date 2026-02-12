@@ -7,10 +7,8 @@ from loguru import logger
 
 from config.config_schema import GameConfig
 from game.game_state import GameState, RoundState
-from game_logging.metrics_calculator import (
-    calculate_game_metrics,
-    calculate_round_metrics,
-)
+from game_logging.metrics_calculator import (calculate_game_metrics,
+                                             calculate_round_metrics)
 
 
 class GameLogger:

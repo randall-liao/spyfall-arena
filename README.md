@@ -13,6 +13,7 @@ It aims to evaluate how different LLMs perform in reasoning, deception, and dedu
 - 📁 Fully backend (no frontend)
 - 🧩 Configurable via YAML file
 - 📄 JSON logs for every match (questions, answers, votes, results)
+- 📈 Comprehensive analytics and reporting system
 
 ---
 
@@ -178,7 +179,38 @@ python game_runner.py config.yaml --log-level DEBUG
 
 You can customize the game by editing `config.yaml` or creating your own configuration files.
 
-### 6. Running Tests
+### 6. Analytics and Reporting
+
+The system includes a powerful analytics module to evaluate model performance across multiple games.
+
+#### Running Analytics
+
+Use the `analyze_logs.py` script to parse game logs and generate reports.
+
+```bash
+# Analyze logs in the default ./logs directory
+python analyze_logs.py
+
+# Specify a custom directory
+python analyze_logs.py --logs-dir ./my_logs
+
+# Generate a JSON report
+python analyze_logs.py --format json --output report.json
+
+# Generate a CSV report
+python analyze_logs.py --format csv --output report.csv
+```
+
+#### Available Metrics
+
+The analytics report includes:
+- **Win Rates:** Overall, Spy, and Civilian win rates.
+- **Spy Performance:** Survival rate, guess accuracy, average spy score.
+- **Civilian Performance:** Success rate, average civilian score.
+- **Voting Behavior:** Accuracy, initiation success, suspicion frequency.
+- **Engagement:** Questions asked/answered, turns per round.
+
+### 7. Running Tests
 
 The project has a comprehensive test suite. To run the tests and see the coverage report:
 
@@ -205,7 +237,7 @@ poetry run pytest
 - [x] Voting and win condition
 - [x] YAML config file for setup
 - [x] Structured JSON logging
-- [ ] Basic evaluation metrics (win rate, suspicion rate)
+- [x] Basic evaluation metrics (win rate, suspicion rate)
 
 ---
 
@@ -231,8 +263,8 @@ poetry run pytest
 
 ## 🧭 Current Status
 
-> ✅ **Phase 1 in progress**
-> Building the foundational backend and refining role-based LLM interactions.
+> ✅ **Phase 1 Complete**
+> The foundational backend, game engine, and analytics system are fully implemented.
 
 ---
 

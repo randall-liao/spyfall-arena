@@ -1,6 +1,7 @@
 import pytest
 from pydantic import ValidationError
-from config.config_schema import LLMConfig, GameConfig, PlayerConfig
+
+from config.config_schema import GameConfig, LLMConfig, PlayerConfig
 
 
 def test_llm_config_defaults():

@@ -1,6 +1,7 @@
-import pytest
 import keyring
-from src.config.api_key_manager import ApiKeyManager
+import pytest
+
+from config.api_key_manager import ApiKeyManager
 
 
 @pytest.mark.e2e

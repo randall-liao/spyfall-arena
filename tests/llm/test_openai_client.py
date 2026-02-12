@@ -1,13 +1,13 @@
 from unittest.mock import MagicMock, patch
 
+import httpx
 import pytest
+from openai import RateLimitError
 
 from config.config_schema import LLMProvider
+from llm.exceptions import MaxRetriesExceededError
 from llm.llm_client_factory import LLMClientFactory
 from llm.openai_client import OpenAIClient
-from llm.exceptions import MaxRetriesExceededError
-from openai import RateLimitError
-import httpx
 
 
 @pytest.fixture

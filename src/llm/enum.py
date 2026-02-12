@@ -1,7 +1,6 @@
 """Enum definitions for LLM clients."""
 
-from enum import auto
-from enum import StrEnum
+from enum import StrEnum, auto
 
 
 class LLMClientType(StrEnum):

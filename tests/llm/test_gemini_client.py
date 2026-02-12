@@ -1,10 +1,10 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-
 from tenacity import RetryCallState
-from llm.gemini_client import GeminiClient, wait_from_google_retry_info
+
 from llm.exceptions import MaxRetriesExceededError
+from llm.gemini_client import GeminiClient, wait_from_google_retry_info
 
 
 class TestGeminiClient(unittest.TestCase):
